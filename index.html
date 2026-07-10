@@ -2929,6 +2929,11 @@
           window.addEventListener("pointerup", () => {
             if (mainState.modalOpen) return;
           });
+          window.addEventListener("pagehide", pauseBackgroundMusic);
+          window.addEventListener("beforeunload", pauseBackgroundMusic);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") pauseBackgroundMusic();
+          });
         }
 
         function rendererDom() {
@@ -3422,6 +3427,14 @@
             stopMusicWatchdog();
             updateMusicButton();
           }
+        }
+
+        function pauseBackgroundMusic() {
+          if (!mainState.audio) return;
+          mainState.audio.pause();
+          mainState.musicPlaying = false;
+          stopMusicWatchdog();
+          updateMusicButton();
         }
 
         function showBubble(el, text, worldPosition, height, duration, kind) {
