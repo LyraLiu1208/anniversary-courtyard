@@ -1,0 +1,3885 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Our Second Anniversary Courtyard" />
+    <meta name="theme-color" content="#9dd8f0" />
+    <title>Our Second Anniversary Courtyard</title>
+    <style>
+      :root {
+        --sky: #9dd8f0;
+        --sky-2: #dff5ff;
+        --grass: #b8e0a0;
+        --grass-deep: #90c87b;
+        --cream: #fff9ef;
+        --milk: #fff2e8;
+        --blush: #ffdce4;
+        --peach: #ffd8bc;
+        --lavender: #e8deff;
+        --pool: #8dddf4;
+        --wood: #c58c60;
+        --wood-deep: #8e5f3d;
+        --ink: #36485c;
+        --soft-shadow: 0 18px 40px rgba(53, 67, 83, 0.16);
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 35%),
+          linear-gradient(180deg, #a9dbf4 0%, #dff3fb 55%, #fef7ef 100%);
+        color: var(--ink);
+        font-family: "Trebuchet MS", "Avenir Next", "Gill Sans", "Segoe UI", sans-serif;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      body::before {
+        background:
+          radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0) 14%),
+          radial-gradient(circle at 72% 12%, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0) 12%),
+          radial-gradient(circle at 85% 26%, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0) 10%);
+        opacity: 0.9;
+      }
+
+      body::after {
+        background:
+          radial-gradient(circle at 50% 120%, rgba(180, 222, 148, 0.42), rgba(180, 222, 148, 0) 30%),
+          radial-gradient(circle at 15% 100%, rgba(255, 218, 194, 0.14), rgba(255, 218, 194, 0) 30%),
+          radial-gradient(circle at 82% 100%, rgba(232, 222, 255, 0.1), rgba(232, 222, 255, 0) 30%);
+        mix-blend-mode: screen;
+      }
+
+      #app,
+      #sceneRoot {
+        position: fixed;
+        inset: 0;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+
+      #ui {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .topbar {
+        position: fixed;
+        top: max(14px, env(safe-area-inset-top));
+        left: max(14px, env(safe-area-inset-left));
+        right: max(14px, env(safe-area-inset-right));
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 12px;
+        pointer-events: none;
+        z-index: 12;
+      }
+
+      .hudRow {
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .musicBtn,
+      .miniHint {
+        border: 1px solid rgba(103, 124, 141, 0.18);
+        background: rgba(255, 255, 255, 0.66);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 14px 36px rgba(53, 67, 83, 0.12);
+      }
+
+      .musicBtn {
+        appearance: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        color: #314355;
+        font: inherit;
+        cursor: pointer;
+        transition:
+          transform 0.16s ease,
+          box-shadow 0.16s ease,
+          background 0.16s ease;
+      }
+
+      .musicBtn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 38px rgba(53, 67, 83, 0.16);
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .musicBtn:active {
+        transform: translateY(1px);
+      }
+
+      .miniHint {
+        position: fixed;
+        left: 50%;
+        bottom: max(14px, env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        border-radius: 999px;
+        padding: 9px 14px;
+        color: rgba(54, 72, 92, 0.82);
+        font-size: 12px;
+        letter-spacing: 0.02em;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .floatingBubble {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translate(-50%, -100%);
+        min-width: 140px;
+        max-width: min(280px, 70vw);
+        padding: 12px 14px;
+        border-radius: 18px;
+        background: rgba(255, 253, 250, 0.96);
+        border: 1px solid rgba(255, 189, 207, 0.46);
+        box-shadow: var(--soft-shadow);
+        color: #4c5665;
+        font-size: 14px;
+        line-height: 1.45;
+        text-align: center;
+        opacity: 0;
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s ease;
+        pointer-events: none;
+        z-index: 20;
+      }
+
+      .floatingBubble.show {
+        opacity: 1;
+      }
+
+      .floatingBubble.dialogue {
+        background: rgba(255, 252, 253, 0.98);
+      }
+
+      .floatingBubble.kiss {
+        background: rgba(255, 241, 245, 0.98);
+        color: #c0507c;
+        font-weight: 700;
+        min-width: 110px;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(50, 64, 79, 0.32);
+        backdrop-filter: blur(12px);
+        z-index: 30;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .modalShell {
+        position: relative;
+        width: min(92vw, 900px);
+        max-height: min(84vh, 860px);
+        overflow: auto;
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 247, 241, 0.96));
+        border: 1px solid rgba(109, 129, 146, 0.18);
+        box-shadow: 0 28px 80px rgba(53, 67, 83, 0.25);
+        pointer-events: auto;
+      }
+
+      .modalShell.kind-gallery {
+        background: linear-gradient(180deg, rgba(255, 254, 255, 0.98), rgba(245, 255, 252, 0.96));
+      }
+
+      .modalShell.kind-food {
+        background: linear-gradient(180deg, rgba(255, 253, 251, 0.98), rgba(255, 244, 236, 0.96));
+      }
+
+      .modalShell.kind-pool {
+        background: linear-gradient(180deg, rgba(250, 253, 255, 0.98), rgba(232, 249, 255, 0.96));
+      }
+
+      .modalShell.kind-dressing {
+        background: linear-gradient(180deg, rgba(255, 252, 255, 0.98), rgba(255, 240, 246, 0.96));
+      }
+
+      .modalShell.kind-letter {
+        background: linear-gradient(180deg, rgba(255, 252, 247, 0.99), rgba(255, 245, 235, 0.96));
+      }
+
+      .modalShell.kind-completion {
+        background: linear-gradient(180deg, rgba(255, 253, 253, 0.99), rgba(255, 236, 243, 0.96));
+      }
+
+      .modalInner {
+        position: relative;
+        padding: 24px 24px 28px;
+      }
+
+      .modalClose {
+        position: sticky;
+        top: 0;
+        margin-left: auto;
+        display: block;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        color: #47586a;
+        font-size: 22px;
+        line-height: 38px;
+        cursor: pointer;
+        box-shadow: 0 12px 28px rgba(53, 67, 83, 0.14);
+      }
+
+      .modalHeader {
+        padding: 2px 0 14px;
+      }
+
+      .modalKicker {
+        margin-bottom: 8px;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(54, 72, 92, 0.58);
+      }
+
+      .modalKicker:empty,
+      .modalHeader p:empty {
+        display: none;
+      }
+
+      .modalHeader h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(26px, 3vw, 40px);
+        line-height: 1.05;
+        color: #34485c;
+      }
+
+      .modalHeader p {
+        margin: 10px 0 0;
+        color: #546477;
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .modalBody {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .mediaGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-auto-flow: dense;
+        gap: 12px;
+      }
+
+      .mediaCard,
+      .infoCard,
+      .paperCard,
+      .completionPanel {
+        border: 1px solid rgba(109, 129, 146, 0.14);
+        box-shadow: 0 12px 26px rgba(53, 67, 83, 0.1);
+      }
+
+      .mediaCard {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 246, 0.98));
+        cursor: zoom-in;
+        outline: 0;
+        transition:
+          transform 0.16s ease,
+          box-shadow 0.16s ease;
+      }
+
+      .mediaCard:hover,
+      .mediaCard:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px rgba(53, 67, 83, 0.18);
+      }
+
+      .mediaCard.wide {
+        grid-column: span 2;
+      }
+
+      .mediaCard.tall {
+        grid-row: span 2;
+      }
+
+      .mediaThumb {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        background:
+          radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 25%),
+          linear-gradient(135deg, #f7c7d7, #ffe3bf, #d8f2d6);
+      }
+
+      .mediaCard.wide .mediaThumb {
+        aspect-ratio: 4 / 3;
+      }
+
+      .mediaCard.tall .mediaThumb {
+        aspect-ratio: 3 / 4;
+      }
+
+      .mediaThumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .mediaFallback {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 20px;
+        color: rgba(52, 72, 92, 0.66);
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .mediaFallback .emoji {
+        font-size: 44px;
+        margin-bottom: 8px;
+      }
+
+      .mediaContent {
+        display: none;
+      }
+
+      .mediaContent h3 {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.2;
+        color: rgba(255, 255, 255, 0.96);
+        text-shadow: 0 2px 10px rgba(32, 42, 54, 0.32);
+      }
+
+      .infoCard h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        line-height: 1.2;
+        color: #33465a;
+      }
+
+      .mediaContent p {
+        display: none;
+      }
+
+      .infoCard p {
+        margin: 0;
+        color: #5a6879;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .infoCard {
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.84);
+        padding: 18px;
+      }
+
+      .infoList {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .infoList li {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        color: #516071;
+        line-height: 1.55;
+        font-size: 14px;
+      }
+
+      .infoList li .bullet {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: inset 0 0 0 1px rgba(109, 129, 146, 0.1);
+      }
+
+      .paperCard {
+        border-radius: 24px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 251, 0.98), rgba(255, 248, 236, 0.98)),
+          repeating-linear-gradient(180deg, rgba(255, 224, 192, 0.08) 0 1px, rgba(255, 255, 255, 0) 1px 28px);
+        padding: 22px;
+      }
+
+      .paperCard pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: Georgia, "Times New Roman", serif;
+        color: #4a4956;
+        font-size: 18px;
+        line-height: 1.8;
+      }
+
+      .signatureLine {
+        margin-top: 22px;
+        display: flex;
+        justify-content: flex-end;
+        color: rgba(74, 73, 86, 0.72);
+        font-family: Georgia, "Times New Roman", serif;
+        font-style: italic;
+        font-size: 15px;
+      }
+
+      .completionPanel {
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 242, 248, 0.96));
+        padding: 18px;
+      }
+
+      .letterPhotos {
+        margin-top: 18px;
+      }
+
+      .imageViewer {
+        position: fixed;
+        inset: 0;
+        z-index: 46;
+        display: grid;
+        place-items: center;
+        padding: 22px;
+        background: rgba(37, 47, 59, 0.72);
+        backdrop-filter: blur(16px);
+        pointer-events: auto;
+      }
+
+      .imageViewerFrame {
+        position: relative;
+        width: min(94vw, 1120px);
+        max-height: 92vh;
+        margin: 0;
+        display: grid;
+        gap: 10px;
+        justify-items: center;
+      }
+
+      .imageViewerFrame img {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        display: block;
+        border-radius: 18px;
+        box-shadow: 0 30px 90px rgba(12, 22, 34, 0.34);
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .imageViewerClose {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 40px;
+        height: 40px;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.96);
+        color: #33465a;
+        font-size: 23px;
+        line-height: 40px;
+        cursor: pointer;
+        box-shadow: 0 14px 30px rgba(12, 22, 34, 0.22);
+      }
+
+      .imageViewerCaption {
+        max-width: min(92vw, 780px);
+        padding: 9px 13px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.84);
+        color: #34485c;
+        font-size: 13px;
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      .imageViewerFallback {
+        min-height: 280px;
+        width: min(92vw, 720px);
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #ffe5ef, #fff7df, #dff5f8);
+        color: rgba(52, 72, 92, 0.72);
+        text-align: center;
+        padding: 22px;
+      }
+
+      .completionVideo {
+        width: 100%;
+        display: block;
+        border-radius: 20px;
+        background: #fff;
+      }
+
+      .completionFallback {
+        display: grid;
+        place-items: center;
+        min-height: 180px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #ffe5ef, #fff7df, #dff5f8);
+        color: rgba(52, 72, 92, 0.72);
+        font-size: 16px;
+        text-align: center;
+        padding: 22px;
+      }
+
+      .loadingOverlay,
+      .fallbackOverlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.75) 28%, rgba(157, 216, 240, 0.7) 100%);
+        z-index: 40;
+        pointer-events: auto;
+      }
+
+      .loadingCard,
+      .fallbackCard {
+        width: min(92vw, 680px);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(109, 129, 146, 0.16);
+        box-shadow: 0 28px 80px rgba(53, 67, 83, 0.18);
+        padding: 28px;
+        text-align: center;
+      }
+
+      .loadingCard h2,
+      .fallbackCard h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(28px, 4vw, 42px);
+        color: #32475b;
+      }
+
+      .loadingCard p,
+      .fallbackCard p {
+        margin: 14px 0 0;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #5a6879;
+      }
+
+      .loadingGlow {
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0) 38%),
+          radial-gradient(circle at 50% 50%, rgba(255, 204, 221, 0.84), rgba(255, 204, 221, 0.2) 45%, rgba(255, 204, 221, 0) 70%);
+        box-shadow: 0 0 0 14px rgba(255, 214, 225, 0.18);
+        animation: pulse 1.8s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(0.95);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          justify-content: flex-end;
+          align-items: flex-start;
+        }
+
+        .hudRow {
+          justify-content: flex-end;
+        }
+
+        .miniHint {
+          width: min(92vw, 520px);
+          text-align: center;
+          line-height: 1.45;
+        }
+
+        .mediaGrid {
+          grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+          gap: 9px;
+        }
+
+        .mediaCard.wide {
+          grid-column: span 1;
+        }
+
+        .modalInner {
+          padding: 18px 16px 22px;
+        }
+
+        .paperCard pre {
+          font-size: 17px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div id="sceneRoot"></div>
+      <div id="ui">
+        <header class="topbar">
+          <div class="hudRow">
+            <button class="musicBtn" id="musicBtn" type="button">Music Off</button>
+          </div>
+        </header>
+
+        <div class="miniHint">WASD or arrow keys to walk. Tap the ground to move. Click glowing spots to open memories.</div>
+
+        <div class="floatingBubble dialogue hidden" id="dialogueBubble"></div>
+        <div class="floatingBubble kiss hidden" id="kissBubble"></div>
+
+        <div class="loadingOverlay" id="loadingOverlay">
+          <div class="loadingCard">
+            <div class="loadingGlow"></div>
+            <h2>Setting up your courtyard</h2>
+            <p>No images or music are required to start. The page will fall back to soft gradients and emoji placeholders if anything is missing.</p>
+          </div>
+        </div>
+
+        <div class="fallbackOverlay hidden" id="fallbackOverlay">
+          <div class="fallbackCard">
+            <h2>Courtyard preview unavailable</h2>
+            <p id="fallbackText">Three.js did not load, so the full 3D courtyard could not start.</p>
+            <p>The page still opens safely, and you can reload once the CDN is available.</p>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="modalOverlay" aria-hidden="true">
+          <div class="modalShell kind-gallery" id="modalShell" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modalInner">
+              <button class="modalClose" id="modalClose" type="button" aria-label="Close modal">×</button>
+              <div class="modalHeader">
+                <div class="modalKicker" id="modalKicker">Memory</div>
+                <h2 id="modalTitle">Title</h2>
+                <p id="modalSubtitle"></p>
+              </div>
+              <div class="modalBody" id="modalBody"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="imageViewer hidden" id="imageViewer" aria-hidden="true">
+          <figure class="imageViewerFrame">
+            <button class="imageViewerClose" id="imageViewerClose" type="button" aria-label="Close image">×</button>
+            <img id="imageViewerImage" alt="" />
+            <div class="imageViewerFallback hidden" id="imageViewerFallback">Image missing, so this memory stays as a soft placeholder.</div>
+            <figcaption class="imageViewerCaption" id="imageViewerCaption"></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ==============================
+      // CUSTOMIZATION AREA
+      // 1. 修改 female character 对话：编辑 meDialogues 数组。
+      // 2. 替换 Gallery 图片：编辑 galleryItems 里的文件路径。
+      // 3. 替换 Food / Fridge 图片：编辑 foodItems 里的文件路径。
+      // 4. 替换 Dressing Room 图片：编辑 dressingRoomItems 里的文件路径。
+      // 5. 编辑 letter：修改 letterContent.body。
+      // 6. 放置背景音乐：修改 musicConfig.src。
+      // 7. 没有图片和音乐也可以正常运行，页面会自动用 emoji / gradient 兜底。
+      // ==============================
+
+      const meDialogues = [
+        "I hid a few soft memories around the courtyard.",
+        "This little place feels warmer every time you find something new.",
+        "Come back to me after you visit the corners of our story.",
+        "I wanted the whole garden to feel like a shared secret.",
+        "I just farted.",
+        "Bruh.",
+        "Do you love me?",
+        "I love you, bb ~",
+        "I wanna play Stardew.",
+      ];
+
+      function createPhotoItems(paths, titlePrefix, description, emoji) {
+        return paths.map((image, index) => ({
+          title: `${titlePrefix} ${String(index + 1).padStart(2, "0")}`,
+          description,
+          image,
+          emoji,
+        }));
+      }
+
+      const galleryItems = createPhotoItems(
+        [
+          "aniversary/galleryItems/2d36a9df014df8bdac12495b72b19a1f.jpeg",
+          "aniversary/galleryItems/IMG_0251.jpeg",
+          "aniversary/galleryItems/IMG_0346.jpeg",
+          "aniversary/galleryItems/IMG_0385.jpeg",
+          "aniversary/galleryItems/IMG_0620.jpeg",
+          "aniversary/galleryItems/IMG_0679.jpeg",
+          "aniversary/galleryItems/IMG_0707.jpeg",
+          "aniversary/galleryItems/IMG_0747.jpeg",
+          "aniversary/galleryItems/IMG_0765.jpeg",
+          "aniversary/galleryItems/IMG_0779.jpeg",
+          "aniversary/galleryItems/IMG_0834.jpeg",
+          "aniversary/galleryItems/IMG_1340.jpeg",
+          "aniversary/galleryItems/IMG_1384.jpeg",
+          "aniversary/galleryItems/IMG_1793.jpeg",
+          "aniversary/galleryItems/IMG_1816.jpeg",
+          "aniversary/galleryItems/IMG_2020.jpeg",
+          "aniversary/galleryItems/IMG_2303.jpeg",
+          "aniversary/galleryItems/IMG_2449.jpeg",
+          "aniversary/galleryItems/IMG_2486.jpeg",
+          "aniversary/galleryItems/IMG_4466.jpeg",
+          "aniversary/galleryItems/IMG_5867.jpeg",
+          "aniversary/galleryItems/IMG_6093.jpeg",
+          "aniversary/galleryItems/IMG_6095.jpeg",
+          "aniversary/galleryItems/IMG_6514.jpeg",
+          "aniversary/galleryItems/IMG_6531.jpeg",
+          "aniversary/galleryItems/IMG_6759.jpeg",
+          "aniversary/galleryItems/IMG_6836.jpeg",
+          "aniversary/galleryItems/IMG_9347.jpeg",
+          "aniversary/galleryItems/IMG_9707.jpeg",
+          "aniversary/galleryItems/IMG_9782.jpeg",
+          "aniversary/galleryItems/IMG_9999.jpeg",
+          "aniversary/galleryItems/_DSC5359.jpeg",
+          "aniversary/galleryItems/_DSC9474.jpeg",
+        ],
+        "Gallery Memory",
+        "A saved frame from our story.",
+        "🖼️",
+      );
+
+      const foodItems = createPhotoItems(
+        [
+          "aniversary/foodItems/IMG_0124.jpeg",
+          "aniversary/foodItems/IMG_0185.jpeg",
+          "aniversary/foodItems/IMG_0300.jpeg",
+          "aniversary/foodItems/IMG_0450.jpeg",
+          "aniversary/foodItems/IMG_0702.jpeg",
+          "aniversary/foodItems/IMG_1793.jpeg",
+          "aniversary/foodItems/IMG_2206.jpeg",
+          "aniversary/foodItems/IMG_2210.jpeg",
+          "aniversary/foodItems/IMG_2447.jpeg",
+          "aniversary/foodItems/IMG_2480.jpeg",
+          "aniversary/foodItems/IMG_2536.jpeg",
+          "aniversary/foodItems/IMG_4310.jpeg",
+          "aniversary/foodItems/IMG_4350.jpeg",
+          "aniversary/foodItems/IMG_4409.jpeg",
+          "aniversary/foodItems/IMG_5138.jpeg",
+          "aniversary/foodItems/IMG_6611.jpeg",
+          "aniversary/foodItems/IMG_9192.jpeg",
+          "aniversary/foodItems/IMG_9208.jpeg",
+          "aniversary/foodItems/IMG_9286.jpeg",
+          "aniversary/foodItems/IMG_9293.jpeg",
+          "aniversary/foodItems/IMG_9314.jpeg",
+          "aniversary/foodItems/IMG_9342.jpeg",
+          "aniversary/foodItems/IMG_9384.jpeg",
+          "aniversary/foodItems/IMG_9402.jpeg",
+          "aniversary/foodItems/IMG_9409.jpeg",
+          "aniversary/foodItems/IMG_9600.jpeg",
+          "aniversary/foodItems/IMG_9624.jpeg",
+          "aniversary/foodItems/IMG_9683.jpeg",
+          "aniversary/foodItems/captured_image_1721391507.jpeg",
+        ],
+        "Kitchen Memory",
+        "A bite, a table, or a little taste we shared.",
+        "🍰",
+      );
+
+      const poolContent = {
+        title: "Pool",
+        description:
+          "The first place we hung out just the two of us. I bet you looked at me in swimming suit and thought damn this girl is so hot.",
+        emoji: "",
+        items: [],
+      };
+
+      const dressingRoomItems = createPhotoItems(
+        [
+          "aniversary/dressingRoomItems/004bd98255c35432610d3f539ee69704.jpeg",
+          "aniversary/dressingRoomItems/142.jpeg",
+          "aniversary/dressingRoomItems/1be81d98-b458-4b4e-b698-31134b2e9499.jpeg",
+          "aniversary/dressingRoomItems/59ad051d-afca-4472-a877-1cb2fc3817d6 copy.jpeg",
+          "aniversary/dressingRoomItems/59ad051d-afca-4472-a877-1cb2fc3817d6.jpeg",
+          "aniversary/dressingRoomItems/IMG_0251.jpeg",
+          "aniversary/dressingRoomItems/IMG_0253.jpeg",
+          "aniversary/dressingRoomItems/IMG_0658.jpeg",
+          "aniversary/dressingRoomItems/IMG_1339.jpeg",
+          "aniversary/dressingRoomItems/IMG_1781.jpeg",
+          "aniversary/dressingRoomItems/IMG_5133.jpeg",
+          "aniversary/dressingRoomItems/IMG_9214.jpeg",
+          "aniversary/dressingRoomItems/IMG_9349.jpeg",
+          "aniversary/dressingRoomItems/IMG_9358.jpeg",
+          "aniversary/dressingRoomItems/_DSC5593.jpeg",
+          "aniversary/dressingRoomItems/c71d69cb-101a-46e3-b238-bd05069464d5.jpeg",
+          "aniversary/dressingRoomItems/ec4df6d4-dd7b-4e61-87ab-4ab008773f06.jpeg",
+        ],
+        "Dressing Room Memory",
+        "A look, a mirror moment, or a little matching day.",
+        "👗",
+      );
+
+      const letterContent = {
+        title: "the postcard that never arrived",
+        body: "",
+        images: createPhotoItems(
+          [
+            "aniversary/letterContent/IMG_7237.jpeg",
+            "aniversary/letterContent/IMG_7238.jpeg",
+          ],
+          "Letter Photo",
+          "A photo tucked beside the letter.",
+          "💌",
+        ),
+      };
+
+      const musicConfig = {
+        src: "audio/background.mp3",
+        volume: 0.35,
+        loop: true,
+      };
+
+      const completionConfig = {
+        title: "Happy 2nd Anniversary",
+        message: "Thank you for walking through this little courtyard with me.",
+        video: "video/final.mp4",
+      };
+
+      (function () {
+        const mainState = {
+          scene: null,
+          camera: null,
+          renderer: null,
+          raycaster: null,
+          pointer: new THREE.Vector2(),
+          ground: null,
+          clickTargets: [],
+          obstacles: [],
+          interactables: [],
+          mainDiscoveries: new Set(),
+          completionPending: false,
+          completionShown: false,
+          modalOpen: false,
+          imageViewerOpen: false,
+          audio: null,
+          musicPlaying: false,
+          musicWatchdog: null,
+          lastMusicLabel: "Music Off",
+          player: null,
+          female: null,
+          playerTarget: null,
+          femaleTarget: null,
+          femaleTargetAt: 0,
+          femaleBubbleTimer: 0,
+          kissCooldownUntil: 0,
+          particleBursts: [],
+          heartBursts: [],
+          labelCache: new Map(),
+          textures: {},
+          clock: new THREE.Clock(),
+          viewWidth: window.innerWidth,
+          viewHeight: window.innerHeight,
+          lastTime: performance.now(),
+        };
+
+        const world = {
+          minX: -16.5,
+          maxX: 16.5,
+          minZ: -12.5,
+          maxZ: 12.5,
+        };
+
+        const areaColors = {
+          gallery: { base: 0xf5d5e6, accent: 0xff7ba8, label: "Gallery" },
+          kitchen: { base: 0xffe1c8, accent: 0xffab72, label: "Kitchen" },
+          pool: { base: 0xd8f3ff, accent: 0x79cfee, label: "Pool" },
+          dressingRoom: { base: 0xffdfee, accent: 0xf48fb1, label: "Dressing Room" },
+          letter: { base: 0xfff1dd, accent: 0xd79c68, label: "" },
+        };
+
+        const areaDefs = [
+          {
+            id: "gallery",
+            type: "gallery",
+            pos: { x: -10.5, z: -6.8 },
+            size: { w: 5.0, d: 4.6 },
+            triggerRadius: 3.1,
+            marker: { x: -8.8, z: -4.4 },
+          },
+          {
+            id: "kitchen",
+            type: "kitchen",
+            pos: { x: 10.3, z: -6.6 },
+            size: { w: 5.0, d: 4.8 },
+            triggerRadius: 3.2,
+            marker: { x: 8.8, z: -4.2 },
+          },
+          {
+            id: "pool",
+            type: "pool",
+            pos: { x: 10.0, z: 6.4 },
+            size: { w: 7.2, d: 5.8 },
+            triggerRadius: 3.8,
+            marker: { x: 8.8, z: 8.3 },
+          },
+          {
+            id: "dressingRoom",
+            type: "dressingRoom",
+            pos: { x: -10.8, z: 1.5 },
+            size: { w: 5.6, d: 4.9 },
+            triggerRadius: 3.2,
+            marker: { x: -12.4, z: 1.4 },
+          },
+          {
+            id: "letter",
+            type: "letter",
+            pos: { x: -1.4, z: 2.7 },
+            size: { w: 1.4, d: 1.1 },
+            triggerRadius: 2.8,
+            marker: { x: -1.9, z: 2.5 },
+          },
+        ];
+
+        const playerStart = { x: 0.0, z: 10.8 };
+        const femaleStart = { x: -7.2, z: 1.9 };
+        const femaleBounds = { minX: -12.5, maxX: 12.5, minZ: -9.5, maxZ: 9.5 };
+        const playerRadius = 0.42;
+        const femaleRadius = 0.42;
+        const mainOrder = ["gallery", "kitchen", "pool", "letter", "dressingRoom"];
+        const musicBtn = document.getElementById("musicBtn");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const fallbackOverlay = document.getElementById("fallbackOverlay");
+        const fallbackText = document.getElementById("fallbackText");
+        const modalOverlay = document.getElementById("modalOverlay");
+        const modalShell = document.getElementById("modalShell");
+        const modalClose = document.getElementById("modalClose");
+        const modalKicker = document.getElementById("modalKicker");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalSubtitle = document.getElementById("modalSubtitle");
+        const modalBody = document.getElementById("modalBody");
+        const imageViewer = document.getElementById("imageViewer");
+        const imageViewerClose = document.getElementById("imageViewerClose");
+        const imageViewerImage = document.getElementById("imageViewerImage");
+        const imageViewerFallback = document.getElementById("imageViewerFallback");
+        const imageViewerCaption = document.getElementById("imageViewerCaption");
+        const dialogueBubble = document.getElementById("dialogueBubble");
+        const kissBubble = document.getElementById("kissBubble");
+        const sceneRoot = document.getElementById("sceneRoot");
+        window.__courtyardDebug = mainState;
+
+        function boot() {
+          try {
+            if (!window.THREE) {
+              throw new Error("Three.js did not load.");
+            }
+
+            initThree();
+            initAudio();
+            bindEvents();
+            hideLoadingSoon();
+            animate();
+          } catch (error) {
+            console.error(error);
+            showFallback(error);
+          }
+        }
+
+        function showFallback(error) {
+          loadingOverlay.classList.add("hidden");
+          modalOverlay.classList.add("hidden");
+          fallbackOverlay.classList.remove("hidden");
+          fallbackText.textContent =
+            error && error.message
+              ? "Three.js could not start: " + error.message
+              : "Three.js could not start.";
+        }
+
+        function hideLoadingSoon() {
+          requestAnimationFrame(() => loadingOverlay.classList.add("hidden"));
+        }
+
+        function initThree() {
+          const scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x9dd8f0);
+          scene.fog = new THREE.Fog(0x9dd8f0, 26, 70);
+
+          const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 120);
+          camera.position.set(0.25, 17.2, 20.8);
+          camera.lookAt(0, 0.78, 0.15);
+
+          const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.outputColorSpace = THREE.SRGBColorSpace;
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.0;
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+          renderer.domElement.style.touchAction = "none";
+          sceneRoot.appendChild(renderer.domElement);
+
+          const raycaster = new THREE.Raycaster();
+
+          mainState.scene = scene;
+          mainState.camera = camera;
+          mainState.renderer = renderer;
+          mainState.raycaster = raycaster;
+
+          mainState.textures.grass = makeGrassTexture();
+          mainState.textures.sky = makeSkyTexture();
+          mainState.textures.water = makeWaterTexture();
+          mainState.textures.heart = makeHeartTexture();
+          mainState.textures.spark = makeSparkTexture();
+          mainState.textures.pinkSpark = makeSparkTexture("#ffd4e1", "#ff8fb3");
+          mainState.textures.banner = makeBannerTexture("Happy 2nd Anniversary");
+
+          buildLights(scene);
+          buildGround(scene);
+          buildSky(scene);
+          buildFence(scene);
+          buildPlants(scene);
+          buildPaths(scene);
+          buildAreas(scene);
+          buildCharacters(scene);
+          buildDecor(scene);
+
+          window.addEventListener("resize", onResize);
+        }
+
+        function buildLights(scene) {
+          const ambient = new THREE.AmbientLight(0xffffff, 1.55);
+          scene.add(ambient);
+
+          const sun = new THREE.DirectionalLight(0xffd9b8, 2.45);
+          sun.position.set(-8, 16, 9);
+          sun.castShadow = true;
+          sun.shadow.mapSize.width = 2048;
+          sun.shadow.mapSize.height = 2048;
+          sun.shadow.camera.near = 0.5;
+          sun.shadow.camera.far = 45;
+          sun.shadow.camera.left = -18;
+          sun.shadow.camera.right = 18;
+          sun.shadow.camera.top = 18;
+          sun.shadow.camera.bottom = -18;
+          sun.shadow.bias = -0.0002;
+          scene.add(sun);
+
+          const coolFill = new THREE.DirectionalLight(0xcfe9ff, 0.95);
+          coolFill.position.set(10, 10, -7);
+          scene.add(coolFill);
+
+          const hemi = new THREE.HemisphereLight(0xdff4ff, 0xfff0df, 1.2);
+          scene.add(hemi);
+
+          const warmSpot = new THREE.PointLight(0xffd2ad, 1.0, 18, 2);
+          warmSpot.position.set(0, 4.4, 2.8);
+          warmSpot.castShadow = true;
+          scene.add(warmSpot);
+        }
+
+        function buildSky(scene) {
+          const dome = new THREE.Mesh(
+            new THREE.SphereGeometry(95, 24, 16),
+            new THREE.MeshBasicMaterial({
+              map: mainState.textures.sky,
+              side: THREE.BackSide,
+            }),
+          );
+          scene.add(dome);
+
+          const sun = new THREE.Mesh(
+            new THREE.SphereGeometry(1.8, 16, 12),
+            new THREE.MeshBasicMaterial({ color: 0xfff1b9 }),
+          );
+          sun.position.set(-12, 15, -18);
+          scene.add(sun);
+
+          for (let i = 0; i < 8; i += 1) {
+            const cloud = new THREE.Mesh(
+              new THREE.SphereGeometry(0.9 + Math.random() * 0.5, 10, 8),
+              new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 }),
+            );
+            cloud.position.set(-14 + i * 3.8, 13.2 + Math.sin(i * 1.1) * 0.6, -18 + i * 0.5);
+            cloud.scale.set(2.1, 1.0, 1.2);
+            scene.add(cloud);
+          }
+        }
+
+        function buildGround(scene) {
+          const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(36, 28, 1, 1),
+            new THREE.MeshStandardMaterial({
+              map: mainState.textures.grass,
+              roughness: 1,
+              metalness: 0,
+              flatShading: true,
+            }),
+          );
+          ground.rotation.x = -Math.PI / 2;
+          ground.receiveShadow = true;
+          ground.userData.kind = "ground";
+          scene.add(ground);
+          mainState.ground = ground;
+        }
+
+        function buildFence(scene) {
+          const fence = new THREE.Group();
+          const postMat = new THREE.MeshStandardMaterial({
+            color: 0xdcb88b,
+            roughness: 1,
+            flatShading: true,
+          });
+          const railMat = new THREE.MeshStandardMaterial({
+            color: 0xc59667,
+            roughness: 1,
+            flatShading: true,
+          });
+
+          const step = 2.0;
+          const minX = world.minX;
+          const maxX = world.maxX;
+          const minZ = world.minZ;
+          const maxZ = world.maxZ;
+
+          function addSide(axis, fixed, from, to) {
+            const span = Math.abs(to - from);
+            const count = Math.floor(span / step);
+            for (let i = 0; i <= count; i += 1) {
+              const t = count === 0 ? 0 : i / count;
+              const value = from + (to - from) * t;
+              const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.5, 0.2), postMat);
+              post.castShadow = true;
+              post.receiveShadow = true;
+              if (axis === "x") {
+                post.position.set(value, 0.75, fixed);
+              } else {
+                post.position.set(fixed, 0.75, value);
+              }
+              fence.add(post);
+            }
+          }
+
+          function addRail(axis, fixed, from, to, y) {
+            const length = Math.abs(to - from);
+            const rail =
+              axis === "x"
+                ? new THREE.Mesh(new THREE.BoxGeometry(length, 0.14, 0.12), railMat)
+                : new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.14, length), railMat);
+            rail.castShadow = true;
+            rail.receiveShadow = true;
+            if (axis === "x") {
+              rail.position.set((from + to) / 2, y, fixed);
+            } else {
+              rail.position.set(fixed, y, (from + to) / 2);
+            }
+            fence.add(rail);
+          }
+
+          addSide("x", minZ, minX, maxX);
+          addSide("x", maxZ, minX, maxX);
+          addSide("z", minX, minZ, maxZ);
+          addSide("z", maxX, minZ, maxZ);
+          addRail("x", minZ, minX, maxX, 1.1);
+          addRail("x", minZ, minX, maxX, 0.74);
+          addRail("x", maxZ, minX, maxX, 1.1);
+          addRail("x", maxZ, minX, maxX, 0.74);
+          addRail("z", minX, minZ, maxZ, 1.1);
+          addRail("z", minX, minZ, maxZ, 0.74);
+          addRail("z", maxX, minZ, maxZ, 1.1);
+          addRail("z", maxX, minZ, maxZ, 0.74);
+
+          scene.add(fence);
+        }
+
+        function buildPlants(scene) {
+          const group = new THREE.Group();
+
+          function addTree(x, z, scale, tilt) {
+            const tree = new THREE.Group();
+            const trunk = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.22, 0.3, 1.5, 6),
+              new THREE.MeshStandardMaterial({ color: 0xb77b56, flatShading: true, roughness: 1 }),
+            );
+            trunk.position.y = 0.75;
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+            tree.add(trunk);
+
+            const leafMat = new THREE.MeshStandardMaterial({
+              color: 0x9dd58b,
+              flatShading: true,
+              roughness: 1,
+            });
+            const leaf1 = new THREE.Mesh(new THREE.IcosahedronGeometry(0.95, 0), leafMat);
+            leaf1.position.set(0, 1.8, 0);
+            leaf1.rotation.set(0.1, 0.2, 0.05);
+            leaf1.castShadow = true;
+            tree.add(leaf1);
+            const leaf2 = leaf1.clone();
+            leaf2.scale.set(0.84, 0.84, 0.84);
+            leaf2.position.set(0.45, 1.5, -0.15);
+            tree.add(leaf2);
+            const leaf3 = leaf1.clone();
+            leaf3.scale.set(0.78, 0.78, 0.78);
+            leaf3.position.set(-0.4, 1.4, 0.2);
+            tree.add(leaf3);
+
+            tree.position.set(x, 0, z);
+            tree.scale.set(scale, scale, scale);
+            tree.rotation.y = tilt;
+            group.add(tree);
+          }
+
+          function addBush(x, z, scale, color) {
+            const bush = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 });
+            for (let i = 0; i < 4; i += 1) {
+              const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(0.4 + i * 0.1, 0), mat);
+              puff.position.set((i % 2) * 0.22 - 0.16, 0.2 + (i % 3) * 0.06, Math.floor(i / 2) * 0.16 - 0.08);
+              puff.scale.set(1.1, 0.9, 1.1);
+              puff.castShadow = true;
+              bush.add(puff);
+            }
+            bush.position.set(x, 0, z);
+            bush.scale.set(scale, scale, scale);
+            group.add(bush);
+          }
+
+          function addFlower(x, z, color, scale) {
+            const flower = new THREE.Group();
+            const stem = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.025, 0.035, 0.55, 5),
+              new THREE.MeshStandardMaterial({ color: 0x6fbe72, flatShading: true, roughness: 1 }),
+            );
+            stem.position.y = 0.27;
+            stem.castShadow = true;
+            flower.add(stem);
+
+            const center = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 6, 6),
+              new THREE.MeshStandardMaterial({ color: 0xffd96d, flatShading: true, roughness: 1 }),
+            );
+            center.position.y = 0.56;
+            flower.add(center);
+
+            const petalMat = new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 1 });
+            for (let i = 0; i < 5; i += 1) {
+              const petal = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), petalMat);
+              petal.position.set(Math.cos((i / 5) * Math.PI * 2) * 0.12, 0.56, Math.sin((i / 5) * Math.PI * 2) * 0.12);
+              flower.add(petal);
+            }
+
+            flower.position.set(x, 0, z);
+            flower.scale.set(scale, scale, scale);
+            group.add(flower);
+          }
+
+          function addRock(x, z, scale) {
+            const rock = new THREE.Mesh(
+              new THREE.DodecahedronGeometry(0.36, 0),
+              new THREE.MeshStandardMaterial({ color: 0xb6b9c2, flatShading: true, roughness: 1 }),
+            );
+            rock.position.set(x, 0.16, z);
+            rock.rotation.set(Math.random() * 0.7, Math.random() * 0.7, Math.random() * 0.7);
+            rock.scale.set(scale, scale * 0.8, scale);
+            rock.castShadow = true;
+            rock.receiveShadow = true;
+            group.add(rock);
+          }
+
+          addTree(-14.2, -9.5, 1.2, 0.2);
+          addTree(12.4, -9.2, 1.14, -0.4);
+          addTree(-14.2, 9.2, 1.05, 0.9);
+          addTree(14.0, 9.4, 1.25, -0.2);
+          addTree(-13.1, 4.6, 0.88, 0.45);
+          addTree(13.2, 0.6, 0.92, -0.7);
+          addBush(-13.7, 2.0, 1.0, 0xaad89a);
+          addBush(-12.8, -1.6, 0.85, 0x98cf88);
+          addBush(13.0, 2.7, 1.0, 0xaad89a);
+          addBush(12.4, -2.0, 0.88, 0x95ca83);
+          addBush(-2.3, -10.3, 0.82, 0x8ecf7e);
+          addBush(2.7, -10.3, 0.82, 0x8ecf7e);
+
+          for (let i = 0; i < 28; i += 1) {
+            addFlower(
+              -15 + Math.random() * 30,
+              -11.2 + Math.random() * 22.4,
+              i % 2 === 0 ? 0xff9fb6 : 0xd7c7ff,
+              0.9 + Math.random() * 0.6,
+            );
+          }
+
+          for (let i = 0; i < 10; i += 1) {
+            addRock(-13 + Math.random() * 26, -10 + Math.random() * 20, 0.7 + Math.random() * 0.45);
+          }
+
+          scene.add(group);
+        }
+
+        function buildPaths(scene) {
+          const stoneMat = new THREE.MeshStandardMaterial({
+            color: 0xf3e7d5,
+            roughness: 1,
+            flatShading: true,
+          });
+          const shadowMat = new THREE.MeshStandardMaterial({
+            color: 0xd9c8b8,
+            roughness: 1,
+            flatShading: true,
+          });
+
+          function placeStone(x, z, scaleX, scaleZ, rotation, isSoft) {
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.16, 6), isSoft ? shadowMat : stoneMat);
+            body.position.set(x, 0.08, z);
+            body.rotation.y = rotation;
+            body.scale.set(scaleX, 1, scaleZ);
+            body.castShadow = true;
+            body.receiveShadow = true;
+            scene.add(body);
+          }
+
+          function pathBetween(points, density, spread) {
+            for (let i = 0; i < points.length - 1; i += 1) {
+              const a = points[i];
+              const b = points[i + 1];
+              const dx = b.x - a.x;
+              const dz = b.z - a.z;
+              const len = Math.hypot(dx, dz) || 1;
+              const nx = -dz / len;
+              const nz = dx / len;
+              const count = Math.max(2, Math.floor(len * density));
+
+              for (let step = 0; step <= count; step += 1) {
+                const t = step / count;
+                const x = a.x + dx * t;
+                const z = a.z + dz * t;
+                const sway = Math.sin((i + t) * Math.PI * 1.6) * spread * 0.45 + (Math.random() - 0.5) * spread;
+                const sizeX = 0.74 + Math.random() * 0.32;
+                const sizeZ = 0.58 + Math.random() * 0.24;
+                placeStone(x + nx * sway, z + nz * sway, sizeX, sizeZ, Math.random() * Math.PI, step % 2 === 0);
+              }
+            }
+          }
+
+          pathBetween(
+            [
+              { x: 0.0, z: 11.0 },
+              { x: 0.1, z: 9.3 },
+              { x: -0.4, z: 7.7 },
+              { x: 0.3, z: 6.0 },
+              { x: 0.0, z: 4.7 },
+              { x: -0.1, z: 3.4 },
+            ],
+            2.4,
+            0.24,
+          );
+
+          pathBetween(
+            [
+              { x: -0.2, z: 5.2 },
+              { x: -2.4, z: 4.1 },
+              { x: -4.8, z: 1.9 },
+              { x: -7.0, z: -1.0 },
+              { x: -9.0, z: -4.2 },
+              { x: -10.7, z: -6.6 },
+            ],
+            2.3,
+            0.22,
+          );
+
+          pathBetween(
+            [
+              { x: 0.2, z: 5.2 },
+              { x: 2.8, z: 4.0 },
+              { x: 5.1, z: 1.8 },
+              { x: 7.5, z: -1.0 },
+              { x: 9.2, z: -4.0 },
+              { x: 10.3, z: -6.4 },
+            ],
+            2.3,
+            0.22,
+          );
+
+          pathBetween(
+            [
+              { x: -0.3, z: 4.6 },
+              { x: -2.4, z: 5.7 },
+              { x: -4.6, z: 6.7 },
+              { x: -7.0, z: 7.3 },
+              { x: -9.0, z: 6.7 },
+              { x: -10.8, z: 6.2 },
+            ],
+            2.2,
+            0.18,
+          );
+
+          pathBetween(
+            [
+              { x: 0.3, z: 4.7 },
+              { x: 2.8, z: 5.4 },
+              { x: 5.2, z: 6.2 },
+              { x: 7.7, z: 6.6 },
+              { x: 9.6, z: 6.5 },
+              { x: 10.1, z: 6.3 },
+            ],
+            2.2,
+            0.18,
+          );
+
+          pathBetween(
+            [
+              { x: -0.4, z: 4.5 },
+              { x: -3.0, z: 3.3 },
+              { x: -5.8, z: 2.2 },
+              { x: -8.0, z: 1.9 },
+              { x: -10.0, z: 1.7 },
+              { x: -11.4, z: 1.6 },
+            ],
+            2.0,
+            0.18,
+          );
+
+          // 留出中心庆祝区，不让石头压满桌子周围。
+          for (let i = 0; i < 12; i += 1) {
+            const angle = (i / 12) * Math.PI * 2;
+            const radius = 2.7 + (i % 2) * 0.35;
+            const x = Math.cos(angle) * radius;
+            const z = 2.8 + Math.sin(angle) * radius * 0.45;
+            if (Math.abs(x) < 3.2 && Math.abs(z - 2.7) < 2.5) continue;
+            placeStone(x, z, 0.58 + (i % 3) * 0.08, 0.42 + (i % 2) * 0.05, angle, true);
+          }
+        }
+
+        function buildAreas(scene) {
+          areaDefs.forEach((def) => {
+            const area = createArea(scene, def);
+            mainState.interactables.push(area);
+            mainState.obstacles.push({
+              x: def.pos.x - def.size.w / 2 - 0.22,
+              z: def.pos.z - def.size.d / 2 - 0.22,
+              w: def.size.w + 0.44,
+              d: def.size.d + 0.44,
+              id: def.id,
+            });
+          });
+        }
+
+        function createArea(scene, def) {
+          const colors = areaColors[def.type];
+          const group = new THREE.Group();
+          group.position.set(def.pos.x, 0, def.pos.z);
+
+          const baseMat = new THREE.MeshStandardMaterial({
+            color: colors.base,
+            roughness: 1,
+            flatShading: true,
+          });
+          const accentMat = new THREE.MeshStandardMaterial({
+            color: colors.accent,
+            roughness: 1,
+            flatShading: true,
+          });
+          const woodMat = new THREE.MeshStandardMaterial({
+            color: 0xc99267,
+            roughness: 1,
+            flatShading: true,
+          });
+
+          if (def.type === "gallery") {
+            buildGallery(group, baseMat, accentMat, woodMat);
+          } else if (def.type === "kitchen") {
+            buildKitchen(group, baseMat, accentMat, woodMat);
+          } else if (def.type === "pool") {
+            buildPool(group, baseMat, accentMat, woodMat);
+          } else if (def.type === "dressingRoom") {
+            buildDressingRoom(group, baseMat, accentMat, woodMat);
+          } else if (def.type === "letter") {
+            buildTable(group, baseMat, accentMat, woodMat);
+          }
+
+          const marker = createMarker(colors.label, def.type, colors.base, colors.accent);
+          marker.position.set(def.marker.x - def.pos.x, 0, def.marker.z - def.pos.z);
+          group.add(marker);
+          group.userData.marker = marker;
+
+          const hitBox = new THREE.Mesh(
+            new THREE.BoxGeometry(def.size.w + 0.8, 2.4, def.size.d + 0.8),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.001, depthWrite: false }),
+          );
+          hitBox.position.set(0, 1.2, 0);
+          hitBox.userData.actionId = def.id;
+          hitBox.userData.kind = def.type;
+          hitBox.userData.isArea = true;
+          group.add(hitBox);
+          mainState.clickTargets.push(hitBox);
+
+          group.userData.areaId = def.id;
+          group.userData.kind = def.type;
+          scene.add(group);
+
+          return {
+            ...def,
+            opened: false,
+            inRange: false,
+            group,
+            marker,
+            hitBox,
+            colliders: [mainState.obstacles[mainState.obstacles.length - 1]],
+          };
+        }
+
+        function createMarker(label, kind, baseColor, accentColor) {
+          const marker = new THREE.Group();
+          const poleMat = new THREE.MeshStandardMaterial({
+            color: 0xdab483,
+            roughness: 1,
+            flatShading: true,
+          });
+          const boardMat = new THREE.MeshStandardMaterial({
+            color: baseColor,
+            transparent: true,
+            opacity: 0.9,
+            roughness: 1,
+            flatShading: true,
+          });
+          const ringMat = new THREE.MeshStandardMaterial({
+            color: accentColor,
+            emissive: accentColor,
+            emissiveIntensity: 0.16,
+            roughness: 1,
+            flatShading: true,
+          });
+          const pole = new THREE.Mesh(new THREE.BoxGeometry(0.14, 1.08, 0.14), poleMat);
+          pole.position.set(0, 0.58, 0);
+          pole.castShadow = true;
+          pole.receiveShadow = true;
+          marker.add(pole);
+
+          const board = new THREE.Mesh(new THREE.BoxGeometry(1.78, 0.38, 0.2), boardMat);
+          board.position.set(0, 1.28, 0);
+          board.castShadow = true;
+          board.receiveShadow = true;
+          board.userData.actionId = kind;
+          marker.add(board);
+
+          const glow = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.07, 8, 16), ringMat);
+          glow.rotation.x = Math.PI / 2;
+          glow.position.set(0, 1.05, 0);
+          marker.add(glow);
+
+          const trimmedLabel = label ? String(label).trim() : "";
+          if (trimmedLabel) {
+            const badge = new THREE.Sprite(
+              new THREE.SpriteMaterial({
+                map: createLabelTexture(trimmedLabel, baseColor, accentColor),
+                transparent: true,
+                depthTest: false,
+              }),
+            );
+            badge.position.set(0, 1.82, 0);
+            badge.scale.set(2.25, 0.78, 1);
+            marker.add(badge);
+          }
+
+          marker.userData.actionId = kind;
+          marker.userData.board = board;
+          marker.userData.glow = glow;
+          mainState.clickTargets.push(board);
+          return marker;
+        }
+
+        function buildGallery(group, baseMat, accentMat, woodMat) {
+          const floor = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.24, 4.7), baseMat);
+          floor.position.set(0, 0.12, 0);
+          floor.castShadow = true;
+          floor.receiveShadow = true;
+          group.add(floor);
+
+          const backWall = new THREE.Mesh(new THREE.BoxGeometry(5.0, 2.3, 0.22), new THREE.MeshStandardMaterial({
+            color: 0xfff4f8,
+            roughness: 1,
+            flatShading: true,
+          }));
+          backWall.position.set(0, 1.35, -1.9);
+          backWall.castShadow = true;
+          group.add(backWall);
+
+          const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.24, 2.1, 4.1), new THREE.MeshStandardMaterial({
+            color: 0xfffbff,
+            roughness: 1,
+            flatShading: true,
+          }));
+          leftWall.position.set(-2.38, 1.24, -0.3);
+          leftWall.castShadow = true;
+          group.add(leftWall);
+
+          const rightWall = leftWall.clone();
+          rightWall.position.x = 2.38;
+          group.add(rightWall);
+
+          const roof = new THREE.Mesh(
+            new THREE.ConeGeometry(3.35, 1.2, 4),
+            new THREE.MeshStandardMaterial({ color: 0xf6bbcf, roughness: 1, flatShading: true }),
+          );
+          roof.position.set(0, 2.55, -0.3);
+          roof.rotation.y = Math.PI / 4;
+          roof.castShadow = true;
+          group.add(roof);
+
+          const frame1 = createFrameCard("Gallery", "🖼️", 0xffd9ea, 1.3, 1.25);
+          frame1.position.set(-1.4, 1.08, -1.76);
+          frame1.rotation.y = 0.02;
+          group.add(frame1);
+          const frame2 = createFrameCard("Memory", "🌷", 0xdff6d4, 1.2, 1.18);
+          frame2.position.set(0.1, 1.0, -1.76);
+          group.add(frame2);
+          const frame3 = createFrameCard("Place", "✨", 0xdfeeff, 1.15, 1.15);
+          frame3.position.set(1.55, 1.04, -1.76);
+          group.add(frame3);
+
+          const easel = new THREE.Group();
+          const legMat = woodMat.clone();
+          const legA = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.4, 0.08), legMat);
+          legA.position.set(-0.22, 0.7, 0.3);
+          legA.rotation.z = 0.08;
+          const legB = legA.clone();
+          legB.position.set(0.22, 0.7, 0.3);
+          legB.rotation.z = -0.08;
+          const legC = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 0.08), legMat);
+          legC.position.set(0, 0.55, -0.12);
+          const canvas = new THREE.Mesh(
+            new THREE.BoxGeometry(1.02, 0.74, 0.08),
+            new THREE.MeshStandardMaterial({ color: 0xfffbf6, roughness: 1, flatShading: true }),
+          );
+          canvas.position.set(0, 1.3, 0.05);
+          easel.add(legA, legB, legC, canvas);
+          easel.position.set(-0.15, 0, 1.05);
+          easel.rotation.y = 0.22;
+          group.add(easel);
+
+          const palette = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.28, 0.3, 0.06, 6),
+            accentMat,
+          );
+          palette.position.set(1.75, 0.52, 0.75);
+          palette.rotation.x = Math.PI / 2;
+          group.add(palette);
+        }
+
+        function buildKitchen(group, baseMat, accentMat, woodMat) {
+          const floor = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.24, 4.7), baseMat);
+          floor.position.set(0, 0.12, 0);
+          floor.receiveShadow = true;
+          group.add(floor);
+
+          const wall = new THREE.Mesh(
+            new THREE.BoxGeometry(5.0, 2.2, 0.22),
+            new THREE.MeshStandardMaterial({ color: 0xfff9f1, roughness: 1, flatShading: true }),
+          );
+          wall.position.set(0, 1.28, -1.88);
+          wall.castShadow = true;
+          group.add(wall);
+
+          const roof = new THREE.Mesh(
+            new THREE.ConeGeometry(3.25, 1.1, 4),
+            new THREE.MeshStandardMaterial({ color: 0xffc9a8, roughness: 1, flatShading: true }),
+          );
+          roof.position.set(0, 2.45, -0.3);
+          roof.rotation.y = Math.PI / 4;
+          roof.castShadow = true;
+          group.add(roof);
+
+          const fridge = new THREE.Mesh(
+            new THREE.BoxGeometry(1.0, 1.9, 0.92),
+            new THREE.MeshStandardMaterial({ color: 0xf8fbff, roughness: 1, flatShading: true }),
+          );
+          fridge.position.set(-1.45, 0.95, 0.25);
+          fridge.castShadow = true;
+          fridge.receiveShadow = true;
+          group.add(fridge);
+
+          const fridgeDoor = new THREE.Mesh(
+            new THREE.BoxGeometry(0.86, 1.65, 0.05),
+            new THREE.MeshStandardMaterial({ color: 0xeaf0f8, roughness: 1, flatShading: true }),
+          );
+          fridgeDoor.position.set(-1.45, 0.95, 0.72);
+          group.add(fridgeDoor);
+
+          const counter = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.45, 0.75), woodMat);
+          counter.position.set(0.8, 0.38, 0.2);
+          counter.castShadow = true;
+          counter.receiveShadow = true;
+          group.add(counter);
+
+          const bowl = new THREE.Mesh(
+            new THREE.SphereGeometry(0.24, 8, 6),
+            accentMat,
+          );
+          bowl.scale.set(1.2, 0.55, 1.0);
+          bowl.position.set(0.95, 0.68, 0.28);
+          group.add(bowl);
+
+          const cup1 = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.09, 0.11, 0.18, 6),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }),
+          );
+          cup1.position.set(0.52, 0.71, -0.02);
+          group.add(cup1);
+          const cup2 = cup1.clone();
+          cup2.position.set(1.3, 0.71, -0.06);
+          cup2.material = new THREE.MeshStandardMaterial({ color: 0xffead9, roughness: 1, flatShading: true });
+          group.add(cup2);
+
+          const fruit = new THREE.Mesh(
+            new THREE.SphereGeometry(0.13, 8, 6),
+            new THREE.MeshStandardMaterial({ color: 0xff9d6d, roughness: 1, flatShading: true }),
+          );
+          fruit.position.set(1.16, 0.82, 0.27);
+          group.add(fruit);
+        }
+
+        function buildPool(group, baseMat, accentMat, woodMat) {
+          const deck = new THREE.Mesh(
+            new THREE.BoxGeometry(7.6, 0.28, 6.0),
+            new THREE.MeshStandardMaterial({ color: 0xf3e2cb, roughness: 1, flatShading: true }),
+          );
+          deck.position.set(0, 0.14, 0);
+          deck.receiveShadow = true;
+          group.add(deck);
+
+          const borderMat = new THREE.MeshStandardMaterial({
+            color: 0xfdf8f1,
+            roughness: 1,
+            flatShading: true,
+          });
+          const border = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.34, 5.0), borderMat);
+          border.position.set(0, 0.44, 0.1);
+          border.receiveShadow = true;
+          border.castShadow = true;
+          group.add(border);
+
+          const basin = new THREE.Mesh(
+            new THREE.BoxGeometry(6.0, 0.18, 4.4),
+            new THREE.MeshStandardMaterial({ color: 0xcdf0fa, roughness: 1, flatShading: true }),
+          );
+          basin.position.set(0, 0.52, 0.1);
+          basin.receiveShadow = true;
+          group.add(basin);
+
+          const water = new THREE.Mesh(
+            new THREE.PlaneGeometry(5.48, 3.86, 1, 1),
+            new THREE.MeshStandardMaterial({
+              map: mainState.textures.water,
+              color: 0x5fcef0,
+              transparent: true,
+              opacity: 0.96,
+              roughness: 0.1,
+              metalness: 0.1,
+              emissive: 0x1f90bf,
+              emissiveIntensity: 0.16,
+            }),
+          );
+          water.rotation.x = -Math.PI / 2;
+          water.position.set(0, 0.63, 0.1);
+          water.receiveShadow = true;
+          group.add(water);
+          group.userData.water = water;
+
+          const shimmer = new THREE.Mesh(
+            new THREE.PlaneGeometry(5.18, 3.56, 1, 1),
+            new THREE.MeshBasicMaterial({
+              color: 0xffffff,
+              transparent: true,
+              opacity: 0.07,
+              depthWrite: false,
+            }),
+          );
+          shimmer.rotation.x = -Math.PI / 2;
+          shimmer.position.set(0, 0.644, 0.1);
+          group.add(shimmer);
+          group.userData.waterShimmer = shimmer;
+
+          const floatRing = new THREE.Mesh(
+            new THREE.TorusGeometry(0.72, 0.12, 8, 18),
+            new THREE.MeshStandardMaterial({ color: 0xffd9e8, roughness: 1, flatShading: true }),
+          );
+          floatRing.position.set(-1.4, 0.72, -0.2);
+          floatRing.rotation.x = Math.PI / 2;
+          group.add(floatRing);
+
+          const umbrellaPole = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.04, 0.05, 1.85, 6),
+            woodMat,
+          );
+          umbrellaPole.position.set(2.1, 0.98, -1.1);
+          umbrellaPole.castShadow = true;
+          group.add(umbrellaPole);
+
+          const umbrella = new THREE.Mesh(
+            new THREE.ConeGeometry(0.95, 0.75, 6),
+            new THREE.MeshStandardMaterial({ color: 0xffcfad, roughness: 1, flatShading: true }),
+          );
+          umbrella.position.set(2.1, 2.1, -1.1);
+          umbrella.rotation.y = 0.25;
+          umbrella.castShadow = true;
+          group.add(umbrella);
+
+          const towel = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.06, 0.8),
+            new THREE.MeshStandardMaterial({ color: 0xffe8ef, roughness: 1, flatShading: true }),
+          );
+          towel.position.set(1.52, 0.22, 1.58);
+          towel.rotation.y = -0.38;
+          towel.castShadow = true;
+          group.add(towel);
+
+          const chair = new THREE.Mesh(
+            new THREE.BoxGeometry(0.42, 0.7, 0.42),
+            accentMat,
+          );
+          chair.position.set(-2.42, 0.5, 1.72);
+          chair.castShadow = true;
+          group.add(chair);
+
+          const umbrellaLight = new THREE.PointLight(0xb2e7ff, 0.55, 6, 2);
+          umbrellaLight.position.set(1.5, 1.7, -0.4);
+          group.add(umbrellaLight);
+        }
+
+        function buildDressingRoom(group, baseMat, accentMat, woodMat) {
+          const floor = new THREE.Mesh(new THREE.BoxGeometry(4.7, 0.24, 4.4), new THREE.MeshStandardMaterial({
+            color: 0xffe7f1,
+            roughness: 1,
+            flatShading: true,
+          }));
+          floor.position.set(0, 0.12, 0);
+          group.add(floor);
+
+          const rug = new THREE.Mesh(
+            new THREE.BoxGeometry(2.1, 0.08, 1.55),
+            new THREE.MeshStandardMaterial({ color: 0xffdbe8, roughness: 1, flatShading: true }),
+          );
+          rug.position.set(0.6, 0.18, 0.72);
+          rug.receiveShadow = true;
+          group.add(rug);
+
+          const wardrobe = new THREE.Mesh(
+            new THREE.BoxGeometry(2.22, 2.28, 0.78),
+            new THREE.MeshStandardMaterial({ color: 0xf6e4cf, roughness: 1, flatShading: true }),
+          );
+          wardrobe.position.set(-1.35, 1.14, -0.18);
+          wardrobe.castShadow = true;
+          wardrobe.receiveShadow = true;
+          group.add(wardrobe);
+
+          const doorL = new THREE.Mesh(
+            new THREE.BoxGeometry(0.96, 1.9, 0.05),
+            new THREE.MeshStandardMaterial({ color: 0xfff4e7, roughness: 1, flatShading: true }),
+          );
+          doorL.position.set(-1.78, 1.02, 0.34);
+          group.add(doorL);
+          const doorR = doorL.clone();
+          doorR.position.set(-0.76, 1.02, 0.34);
+          group.add(doorR);
+
+          const handleL = new THREE.Mesh(
+            new THREE.BoxGeometry(0.06, 0.16, 0.04),
+            new THREE.MeshStandardMaterial({ color: 0xc68a5f, roughness: 1, flatShading: true }),
+          );
+          handleL.position.set(-1.45, 0.96, 0.37);
+          group.add(handleL);
+          const handleR = handleL.clone();
+          handleR.position.x = -1.0;
+          group.add(handleR);
+
+          const mirror = new THREE.Mesh(
+            new THREE.BoxGeometry(1.24, 1.74, 0.06),
+            new THREE.MeshStandardMaterial({
+              color: 0xe9f7ff,
+              roughness: 0.2,
+              metalness: 0.1,
+              flatShading: true,
+            }),
+          );
+          mirror.position.set(1.5, 1.25, 0.48);
+          mirror.castShadow = true;
+          group.add(mirror);
+
+          const mirrorFrame = new THREE.Mesh(
+            new THREE.BoxGeometry(1.42, 1.94, 0.12),
+            accentMat,
+          );
+          mirrorFrame.position.set(1.5, 1.25, 0.39);
+          group.add(mirrorFrame);
+
+          const rack = new THREE.Group();
+          const pole = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.06, 0.06), woodMat);
+          pole.position.set(0.1, 1.72, 0);
+          rack.add(pole);
+          for (let i = -1; i <= 2; i += 1) {
+            const hanger = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.03, 0.03, 1.0, 5),
+              new THREE.MeshStandardMaterial({
+                color: i % 2 === 0 ? 0xffcfdc : 0xdce8ff,
+                roughness: 1,
+                flatShading: true,
+              }),
+            );
+            hanger.position.set(i * 0.34, 1.08, 0);
+            hanger.rotation.z = 0.02 * i;
+            rack.add(hanger);
+
+            const dress = new THREE.Mesh(
+              new THREE.ConeGeometry(0.16, 0.52, 4),
+              new THREE.MeshStandardMaterial({
+                color: i % 2 === 0 ? 0xff9fbe : 0xf8e3b8,
+                roughness: 1,
+                flatShading: true,
+              }),
+            );
+            dress.position.set(i * 0.34, 0.56, 0.02);
+            dress.rotation.y = 0.1 * i;
+            rack.add(dress);
+          }
+          rack.position.set(0.45, 0, -1.0);
+          group.add(rack);
+
+          const stool = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.34, 0.4, 0.32, 6),
+            accentMat,
+          );
+          stool.position.set(0.28, 0.3, 1.18);
+          stool.castShadow = true;
+          group.add(stool);
+
+          const vanity = new THREE.Mesh(
+            new THREE.BoxGeometry(0.98, 0.16, 0.4),
+            woodMat,
+          );
+          vanity.position.set(1.55, 0.48, 1.05);
+          vanity.castShadow = true;
+          group.add(vanity);
+
+          const tinyMirror = new THREE.Mesh(
+            new THREE.BoxGeometry(0.36, 0.5, 0.05),
+            new THREE.MeshStandardMaterial({ color: 0xfff8fc, roughness: 0.2, flatShading: true }),
+          );
+          tinyMirror.position.set(1.55, 0.85, 1.02);
+          group.add(tinyMirror);
+
+          const tinyLamp = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 6, 6),
+            new THREE.MeshStandardMaterial({
+              color: 0xffd5e6,
+              emissive: 0xffb4cb,
+              emissiveIntensity: 0.28,
+              roughness: 1,
+              flatShading: true,
+            }),
+          );
+          tinyLamp.position.set(1.88, 0.98, 1.02);
+          group.add(tinyLamp);
+        }
+
+        function buildTable(group, baseMat, accentMat, woodMat) {
+          const rug = new THREE.Mesh(
+            new THREE.BoxGeometry(7.6, 0.18, 4.9),
+            new THREE.MeshStandardMaterial({
+              color: 0xf9e9e1,
+              roughness: 1,
+              flatShading: true,
+            }),
+          );
+          rug.position.set(0, 0.08, 0);
+          rug.receiveShadow = true;
+          group.add(rug);
+
+          const tableTop = new THREE.Mesh(new THREE.BoxGeometry(5.05, 0.26, 2.65), woodMat);
+          tableTop.position.set(0, 0.98, 0.06);
+          tableTop.castShadow = true;
+          tableTop.receiveShadow = true;
+          group.add(tableTop);
+
+          const legMat = new THREE.MeshStandardMaterial({
+            color: 0xb97649,
+            roughness: 1,
+            flatShading: true,
+          });
+          const legPositions = [
+            [-2.15, 0.48, -1.08],
+            [2.15, 0.48, -1.08],
+            [-2.15, 0.48, 1.12],
+            [2.15, 0.48, 1.12],
+          ];
+          legPositions.forEach(([x, y, z]) => {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.9, 0.18), legMat);
+            leg.position.set(x, y, z);
+            leg.castShadow = true;
+            group.add(leg);
+          });
+
+          const chairLeft = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.14, 0.6), accentMat);
+          chairLeft.position.set(-3.16, 0.18, 0.46);
+          chairLeft.castShadow = true;
+          group.add(chairLeft);
+          const chairRight = chairLeft.clone();
+          chairRight.position.set(3.16, 0.18, 0.46);
+          group.add(chairRight);
+
+          const bannerBacking = new THREE.Mesh(
+            new THREE.PlaneGeometry(6.3, 1.12),
+            new THREE.MeshBasicMaterial({
+              color: 0xfffbf4,
+              transparent: true,
+              opacity: 0.92,
+              side: THREE.DoubleSide,
+            }),
+          );
+          bannerBacking.position.set(0, 3.42, -0.82);
+          bannerBacking.castShadow = true;
+          group.add(bannerBacking);
+
+          const banner = new THREE.Mesh(
+            new THREE.PlaneGeometry(6.0, 0.92),
+            new THREE.MeshBasicMaterial({
+              map: mainState.textures.banner,
+              transparent: true,
+              side: THREE.DoubleSide,
+            }),
+          );
+          banner.position.set(0, 3.43, -0.75);
+          banner.castShadow = true;
+          group.add(banner);
+
+          const bannerRibbonL = new THREE.Mesh(
+            new THREE.BoxGeometry(0.1, 0.92, 0.06),
+            new THREE.MeshStandardMaterial({ color: 0xff97b7, roughness: 1, flatShading: true }),
+          );
+          bannerRibbonL.position.set(-3.05, 3.35, -0.82);
+          group.add(bannerRibbonL);
+          const bannerRibbonR = bannerRibbonL.clone();
+          bannerRibbonR.position.set(3.05, 3.35, -0.82);
+          group.add(bannerRibbonR);
+
+          const stringLeft = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 3.1, 5), woodMat);
+          stringLeft.position.set(-2.9, 2.9, -0.1);
+          stringLeft.rotation.z = -0.18;
+          group.add(stringLeft);
+          const stringRight = stringLeft.clone();
+          stringRight.position.set(2.9, 2.9, -0.1);
+          stringRight.rotation.z = 0.18;
+          group.add(stringRight);
+
+          const cake = buildCake();
+          cake.position.set(0, 1.15, 0.1);
+          group.add(cake);
+
+          const envelope = buildEnvelope();
+          envelope.position.set(-1.95, 1.08, 0.1);
+          envelope.userData.actionId = "letter";
+          group.add(envelope);
+          mainState.clickTargets.push(envelope);
+
+          const gift = buildGiftBox();
+          gift.position.set(2.0, 1.1, 0.12);
+          group.add(gift);
+
+          const candleLight = new THREE.PointLight(0xffd6a4, 1.2, 6, 2);
+          candleLight.position.set(0, 2.0, 0.1);
+          group.add(candleLight);
+
+          const balloonA = buildBalloon(0xffc4d7);
+          balloonA.position.set(-3.4, 2.5, 1.3);
+          group.add(balloonA);
+          const balloonB = buildBalloon(0xd7eaff);
+          balloonB.position.set(3.5, 2.42, 1.02);
+          group.add(balloonB);
+
+          const tableLight = new THREE.PointLight(0xffe1b8, 1.55, 8, 2);
+          tableLight.position.set(0, 2.75, 0.1);
+          group.add(tableLight);
+
+          // Anniversary Table 是场景中心，必须有自己的碰撞体，避免角色穿过去。
+          mainState.obstacles.push({
+            x: group.position.x - 2.85,
+            z: group.position.z - 2.0,
+            w: 5.7,
+            d: 4.1,
+            id: "anniversaryTable",
+          });
+        }
+
+        function buildCake() {
+          const cake = new THREE.Group();
+          const base = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.76, 0.8, 0.56, 8),
+            new THREE.MeshStandardMaterial({ color: 0xfff7f1, roughness: 1, flatShading: true }),
+          );
+          base.castShadow = true;
+          cake.add(base);
+
+          const frosting = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.8, 0.84, 0.18, 8),
+            new THREE.MeshStandardMaterial({ color: 0xffc8dc, roughness: 1, flatShading: true }),
+          );
+          frosting.position.y = 0.34;
+          frosting.castShadow = true;
+          cake.add(frosting);
+
+          const top = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.56, 0.58, 0.08, 8),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }),
+          );
+          top.position.y = 0.52;
+          cake.add(top);
+
+          for (let i = 0; i < 2; i += 1) {
+            const candle = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.04, 0.04, 0.28, 5),
+              new THREE.MeshStandardMaterial({ color: i === 0 ? 0xff9cb9 : 0xa3d9ff, roughness: 1, flatShading: true }),
+            );
+            candle.position.set(-0.16 + i * 0.32, 0.78, 0.04);
+            candle.castShadow = true;
+            cake.add(candle);
+
+            const flame = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 6, 6),
+              new THREE.MeshStandardMaterial({ color: 0xffef9c, emissive: 0xffd36a, emissiveIntensity: 0.55, flatShading: true }),
+            );
+            flame.position.set(-0.16 + i * 0.32, 0.97, 0.04);
+            cake.add(flame);
+          }
+
+          return cake;
+        }
+
+        function buildEnvelope() {
+          const envelope = new THREE.Group();
+          const body = new THREE.Mesh(
+            new THREE.BoxGeometry(0.82, 0.08, 0.58),
+            new THREE.MeshStandardMaterial({ color: 0xfff7f2, roughness: 1, flatShading: true }),
+          );
+          body.castShadow = true;
+          body.receiveShadow = true;
+          envelope.add(body);
+          const flap = new THREE.Mesh(
+            new THREE.BoxGeometry(0.72, 0.03, 0.38),
+            new THREE.MeshStandardMaterial({ color: 0xffd0bf, roughness: 1, flatShading: true }),
+          );
+          flap.position.set(0, 0.06, -0.06);
+          flap.rotation.x = -0.4;
+          envelope.add(flap);
+          const seal = new THREE.Mesh(
+            new THREE.SphereGeometry(0.06, 6, 6),
+            new THREE.MeshStandardMaterial({ color: 0xff8eb3, roughness: 1, flatShading: true }),
+          );
+          seal.position.set(0, 0.08, 0.2);
+          envelope.add(seal);
+          return envelope;
+        }
+
+        function buildGiftBox() {
+          const gift = new THREE.Group();
+          const body = new THREE.Mesh(
+            new THREE.BoxGeometry(0.82, 0.58, 0.62),
+            new THREE.MeshStandardMaterial({ color: 0xd9f2ff, roughness: 1, flatShading: true }),
+          );
+          body.castShadow = true;
+          body.receiveShadow = true;
+          gift.add(body);
+          const ribbonX = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.66, 0.66), new THREE.MeshStandardMaterial({
+            color: 0xff8fb3,
+            roughness: 1,
+            flatShading: true,
+          }));
+          gift.add(ribbonX);
+          const ribbonZ = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.66, 0.1), ribbonX.material);
+          gift.add(ribbonZ);
+          const bow = new THREE.Mesh(
+            new THREE.SphereGeometry(0.12, 6, 6),
+            new THREE.MeshStandardMaterial({ color: 0xff8fb3, roughness: 1, flatShading: true }),
+          );
+          bow.position.y = 0.38;
+          gift.add(bow);
+          return gift;
+        }
+
+        function buildBalloon(color) {
+          const balloon = new THREE.Group();
+          const body = new THREE.Mesh(
+            new THREE.SphereGeometry(0.32, 10, 8),
+            new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }),
+          );
+          body.scale.set(0.92, 1.2, 0.92);
+          body.castShadow = true;
+          balloon.add(body);
+          const string = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.018, 0.018, 1.2, 5),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }),
+          );
+          string.position.y = -0.92;
+          string.castShadow = true;
+          balloon.add(string);
+          return balloon;
+        }
+
+        function buildCharacters(scene) {
+          const cowboy = createCowboy();
+          cowboy.group.position.set(playerStart.x, 0, playerStart.z);
+          scene.add(cowboy.group);
+          mainState.player = cowboy;
+
+          const female = createFemale();
+          female.group.position.set(femaleStart.x, 0, femaleStart.z);
+          scene.add(female.group);
+          mainState.female = female;
+
+          const femaleHit = new THREE.Mesh(
+            new THREE.SphereGeometry(1.0, 10, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.001, depthWrite: false }),
+          );
+          femaleHit.position.set(0, 1.8, 0);
+          femaleHit.userData.actionId = "female";
+          female.group.add(femaleHit);
+          mainState.clickTargets.push(femaleHit);
+        }
+
+        function createCowboy() {
+          const group = new THREE.Group();
+          const shadow = new THREE.Mesh(
+            new THREE.CircleGeometry(0.74, 20),
+            new THREE.MeshBasicMaterial({ color: 0x5f5d62, transparent: true, opacity: 0.22 }),
+          );
+          shadow.rotation.x = -Math.PI / 2;
+          shadow.position.y = 0.02;
+          group.add(shadow);
+
+          const skin = new THREE.MeshStandardMaterial({ color: 0xf0c7a6, roughness: 1, flatShading: true });
+          const shirt = new THREE.MeshStandardMaterial({ color: 0x9fbfe0, roughness: 1, flatShading: true });
+          const vest = new THREE.MeshStandardMaterial({ color: 0xc68a5f, roughness: 1, flatShading: true });
+          const pants = new THREE.MeshStandardMaterial({ color: 0x7191cc, roughness: 1, flatShading: true });
+          const hat = new THREE.MeshStandardMaterial({ color: 0x8f633f, roughness: 1, flatShading: true });
+          const hatBand = new THREE.MeshStandardMaterial({ color: 0xf4d5a5, roughness: 1, flatShading: true });
+          const boot = new THREE.MeshStandardMaterial({ color: 0x5d3d2d, roughness: 1, flatShading: true });
+          const dark = new THREE.MeshStandardMaterial({ color: 0x42302a, roughness: 1, flatShading: true });
+
+          const body = new THREE.Mesh(new THREE.BoxGeometry(0.88, 1.0, 0.5), shirt);
+          body.position.set(0, 1.35, 0);
+          body.castShadow = true;
+          body.receiveShadow = true;
+          group.add(body);
+
+          const vestMesh = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.82, 0.42), vest);
+          vestMesh.position.set(0, 1.34, 0.02);
+          vestMesh.castShadow = true;
+          group.add(vestMesh);
+
+          const belt = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.08, 0.44), dark);
+          belt.position.set(0, 0.96, 0);
+          group.add(belt);
+
+          const legL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.58, 0.2), pants);
+          legL.position.set(-0.18, 0.35, 0);
+          const legR = legL.clone();
+          legR.position.x = 0.18;
+          group.add(legL, legR);
+
+          const bootL = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.15, 0.38), boot);
+          bootL.position.set(-0.18, 0.05, 0.06);
+          const bootR = bootL.clone();
+          bootR.position.x = 0.18;
+          group.add(bootL, bootR);
+
+          const armL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.72, 0.16), shirt);
+          armL.position.set(-0.52, 1.35, 0);
+          armL.rotation.z = 0.18;
+          const armR = armL.clone();
+          armR.position.x = 0.52;
+          armR.rotation.z = -0.18;
+          group.add(armL, armR);
+
+          const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), skin);
+          head.position.set(0, 2.25, 0);
+          head.castShadow = true;
+          group.add(head);
+
+          const eyeMat = new THREE.MeshStandardMaterial({ color: 0x2d1f1c, roughness: 1, flatShading: true });
+          const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eyeMat);
+          eyeL.position.set(-0.12, 2.3, 0.34);
+          const eyeR = eyeL.clone();
+          eyeR.position.x = 0.12;
+          group.add(eyeL, eyeR);
+
+          const blushMat = new THREE.MeshStandardMaterial({ color: 0xffa2b7, transparent: true, opacity: 0.45, roughness: 1, flatShading: true });
+          const blushL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), blushMat);
+          blushL.position.set(-0.2, 2.18, 0.31);
+          const blushR = blushL.clone();
+          blushR.position.x = 0.2;
+          group.add(blushL, blushR);
+
+          const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.82, 0.12, 8), hat);
+          hatBrim.position.set(0, 2.74, 0);
+          hatBrim.rotation.y = 0.18;
+          hatBrim.castShadow = true;
+          group.add(hatBrim);
+
+          const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.42, 0.56, 8), hat);
+          crown.position.set(0, 3.06, 0);
+          crown.castShadow = true;
+          group.add(crown);
+
+          const band = new THREE.Mesh(new THREE.CylinderGeometry(0.39, 0.39, 0.08, 8), hatBand);
+          band.position.set(0, 2.96, 0);
+          group.add(band);
+
+          const star = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.04), new THREE.MeshStandardMaterial({
+            color: 0xfff2cc,
+            roughness: 1,
+            flatShading: true,
+          }));
+          star.position.set(0.17, 2.98, 0.35);
+          group.add(star);
+
+          return {
+            group,
+            shadow,
+            legL,
+            legR,
+            armL,
+            armR,
+          };
+        }
+
+        function createFemale() {
+          const group = new THREE.Group();
+          const shadow = new THREE.Mesh(
+            new THREE.CircleGeometry(0.7, 20),
+            new THREE.MeshBasicMaterial({ color: 0x5f5d62, transparent: true, opacity: 0.2 }),
+          );
+          shadow.rotation.x = -Math.PI / 2;
+          shadow.position.y = 0.02;
+          group.add(shadow);
+
+          const skin = new THREE.MeshStandardMaterial({ color: 0xf2c7a9, roughness: 1, flatShading: true });
+          const dress = new THREE.MeshStandardMaterial({ color: 0xffc8d8, roughness: 1, flatShading: true });
+          const dressCream = new THREE.MeshStandardMaterial({ color: 0xfff3e9, roughness: 1, flatShading: true });
+          const hair = new THREE.MeshStandardMaterial({ color: 0x7b4e35, roughness: 1, flatShading: true });
+          const hairDark = new THREE.MeshStandardMaterial({ color: 0x5d3927, roughness: 1, flatShading: true });
+          const shoe = new THREE.MeshStandardMaterial({ color: 0x705145, roughness: 1, flatShading: true });
+
+          const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.34, 1.0, 6), dress);
+          skirt.position.set(0, 1.05, 0);
+          skirt.castShadow = true;
+          skirt.receiveShadow = true;
+          group.add(skirt);
+
+          const top = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.58, 0.42), dressCream);
+          top.position.set(0, 1.62, 0);
+          top.castShadow = true;
+          group.add(top);
+
+          const belt = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 0.38), new THREE.MeshStandardMaterial({
+            color: 0xff95b7,
+            roughness: 1,
+            flatShading: true,
+          }));
+          belt.position.set(0, 1.28, 0.01);
+          group.add(belt);
+
+          const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), skin);
+          head.position.set(0, 2.2, 0);
+          head.castShadow = true;
+          group.add(head);
+
+          const hairCrown = new THREE.Mesh(
+            new THREE.SphereGeometry(0.56, 10, 8),
+            hairDark,
+          );
+          hairCrown.position.set(0, 2.43, -0.03);
+          hairCrown.scale.set(1.08, 0.8, 1.02);
+          hairCrown.castShadow = true;
+          group.add(hairCrown);
+
+          const hairCap = new THREE.Mesh(
+            new THREE.SphereGeometry(0.45, 10, 8),
+            hair,
+          );
+          hairCap.position.set(0, 2.34, 0.02);
+          hairCap.scale.set(1.18, 0.74, 1.04);
+          hairCap.castShadow = true;
+          group.add(hairCap);
+
+          const hairBack = new THREE.Mesh(
+            new THREE.BoxGeometry(0.82, 1.24, 0.34),
+            hairDark,
+          );
+          hairBack.position.set(0, 1.72, -0.14);
+          hairBack.castShadow = true;
+          group.add(hairBack);
+
+          const hairBackTail = new THREE.Mesh(
+            new THREE.CapsuleGeometry(0.18, 0.88, 3, 6),
+            hair,
+          );
+          hairBackTail.position.set(0, 1.58, -0.16);
+          hairBackTail.rotation.x = -0.06;
+          hairBackTail.castShadow = true;
+          group.add(hairBackTail);
+
+          const hairLeft = new THREE.Mesh(
+            new THREE.CapsuleGeometry(0.13, 1.1, 3, 5),
+            hairDark,
+          );
+          hairLeft.position.set(-0.3, 1.64, 0.12);
+          hairLeft.rotation.z = 0.32;
+          hairLeft.castShadow = true;
+          group.add(hairLeft);
+
+          const hairRight = hairLeft.clone();
+          hairRight.position.set(0.3, 1.64, 0.12);
+          hairRight.rotation.z = -0.32;
+          group.add(hairRight);
+
+          const hairBang = new THREE.Mesh(
+            new THREE.BoxGeometry(0.52, 0.18, 0.22),
+            hairDark,
+          );
+          hairBang.position.set(0, 2.36, 0.28);
+          hairBang.castShadow = true;
+          group.add(hairBang);
+
+          const hairSideFlapL = new THREE.Mesh(
+            new THREE.BoxGeometry(0.16, 0.52, 0.18),
+            hair,
+          );
+          hairSideFlapL.position.set(-0.18, 2.02, 0.16);
+          hairSideFlapL.rotation.z = 0.22;
+          hairSideFlapL.castShadow = true;
+          group.add(hairSideFlapL);
+
+          const hairSideFlapR = hairSideFlapL.clone();
+          hairSideFlapR.position.set(0.18, 2.02, 0.16);
+          hairSideFlapR.rotation.z = -0.22;
+          group.add(hairSideFlapR);
+
+          const bowL = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), new THREE.MeshStandardMaterial({
+            color: 0xff8fb3,
+            roughness: 1,
+            flatShading: true,
+          }));
+          bowL.position.set(-0.26, 2.54, 0.1);
+          const bowR = bowL.clone();
+          bowR.position.set(-0.12, 2.54, 0.1);
+          group.add(bowL, bowR);
+
+          const eyeMat = new THREE.MeshStandardMaterial({ color: 0x2f201c, roughness: 1, flatShading: true });
+          const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.038, 6, 6), eyeMat);
+          eyeL.position.set(-0.11, 2.24, 0.32);
+          const eyeR = eyeL.clone();
+          eyeR.position.x = 0.11;
+          group.add(eyeL, eyeR);
+
+          const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, 0.03), new THREE.MeshStandardMaterial({
+            color: 0xd86a85,
+            roughness: 1,
+            flatShading: true,
+          }));
+          mouth.position.set(0, 2.08, 0.32);
+          group.add(mouth);
+
+          const armL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.66, 0.12), dressCream);
+          armL.position.set(-0.42, 1.56, 0);
+          armL.rotation.z = 0.12;
+          const armR = armL.clone();
+          armR.position.x = 0.42;
+          armR.rotation.z = -0.12;
+          group.add(armL, armR);
+
+          const legL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.48, 0.16), dressCream);
+          legL.position.set(-0.16, 0.34, 0);
+          const legR = legL.clone();
+          legR.position.x = 0.16;
+          group.add(legL, legR);
+
+          const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.32), shoe);
+          shoeL.position.set(-0.16, 0.08, 0.06);
+          const shoeR = shoeL.clone();
+          shoeR.position.x = 0.16;
+          group.add(shoeL, shoeR);
+
+          return {
+            group,
+            shadow,
+            legL,
+            legR,
+            armL,
+            armR,
+          };
+        }
+
+        function createFrameCard(title, emoji, color, width, height) {
+          const group = new THREE.Group();
+          const frame = new THREE.Mesh(
+            new THREE.BoxGeometry(width, height, 0.08),
+            new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }),
+          );
+          frame.castShadow = true;
+          frame.receiveShadow = true;
+          group.add(frame);
+
+          const inner = new THREE.Mesh(
+            new THREE.BoxGeometry(width - 0.14, height - 0.14, 0.02),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }),
+          );
+          inner.position.z = 0.05;
+          group.add(inner);
+
+          const badge = new THREE.Sprite(
+            new THREE.SpriteMaterial({
+              map: createLabelTexture(emoji + " " + title, color, 0xffffff),
+              transparent: true,
+              depthTest: false,
+            }),
+          );
+          badge.position.set(0, 0.02, 0.08);
+          badge.scale.set(width * 1.05, height * 0.42, 1);
+          group.add(badge);
+          return group;
+        }
+
+        function buildDecor(scene) {
+          const lampGroup = new THREE.Group();
+          const lampPositions = [
+            [-5.3, 1.8],
+            [0, 2.9],
+            [5.3, 1.8],
+          ];
+          lampPositions.forEach(([x, z], index) => {
+            const pole = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.08, 2.2, 5),
+              new THREE.MeshStandardMaterial({ color: 0xd6b17f, roughness: 1, flatShading: true }),
+            );
+            pole.position.set(x, 1.1, z);
+            pole.castShadow = true;
+            lampGroup.add(pole);
+
+            const orb = new THREE.Mesh(
+              new THREE.SphereGeometry(0.18, 8, 6),
+              new THREE.MeshStandardMaterial({
+                color: index === 1 ? 0xffe7b8 : 0xffd4e8,
+                emissive: 0xffc8a1,
+                emissiveIntensity: 0.35,
+                roughness: 1,
+                flatShading: true,
+              }),
+            );
+            orb.position.set(x, 2.2, z);
+            lampGroup.add(orb);
+          });
+          scene.add(lampGroup);
+
+          const ribbons = new THREE.Group();
+          for (let i = -3; i <= 3; i += 1) {
+            const bulb = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 6, 6),
+              new THREE.MeshStandardMaterial({
+                color: i % 2 === 0 ? 0xffd4e6 : 0xfff0b6,
+                emissive: i % 2 === 0 ? 0xff91b7 : 0xffd77b,
+                emissiveIntensity: 0.22,
+                roughness: 1,
+                flatShading: true,
+              }),
+            );
+            bulb.position.set(i * 0.9, 3.35 + Math.sin(i * 1.2) * 0.1, 2.2 + Math.cos(i * 0.5) * 0.2);
+            ribbons.add(bulb);
+          }
+          scene.add(ribbons);
+        }
+
+        function createLabelTexture(text, baseColor, accentColor) {
+          if (mainState.labelCache.has(text)) {
+            return mainState.labelCache.get(text);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = 512;
+          canvas.height = 160;
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          grad.addColorStop(0, colorToCss(baseColor, 0.95));
+          grad.addColorStop(1, colorToCss(accentColor, 0.88));
+
+          roundRect(ctx, 18, 16, 476, 128, 34);
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = "rgba(255,255,255,0.58)";
+          ctx.stroke();
+
+          ctx.fillStyle = "rgba(255,255,255,0.94)";
+          ctx.font = "700 46px Trebuchet MS, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, 256, 82);
+
+          ctx.strokeStyle = "rgba(79, 85, 95, 0.08)";
+          ctx.lineWidth = 2;
+          roundRect(ctx, 18, 16, 476, 128, 34);
+          ctx.stroke();
+
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.needsUpdate = true;
+          mainState.labelCache.set(text, texture);
+          return texture;
+        }
+
+        function makeSkyTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 1024;
+          canvas.height = 1024;
+          const ctx = canvas.getContext("2d");
+          const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+          grad.addColorStop(0, "#87caee");
+          grad.addColorStop(0.45, "#bfe8f7");
+          grad.addColorStop(0.85, "#f7f1e9");
+          grad.addColorStop(1, "#fff8f1");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          for (let i = 0; i < 12; i += 1) {
+            const x = 70 + i * 80 + (i % 3) * 18;
+            const y = 120 + Math.sin(i * 1.3) * 44;
+            ctx.fillStyle = "rgba(255,255,255,0.42)";
+            blob(ctx, x, y, 60 + (i % 4) * 12, 28 + (i % 3) * 4);
+          }
+          ctx.fillStyle = "rgba(255, 240, 187, 0.7)";
+          ctx.beginPath();
+          ctx.arc(180, 180, 72, 0, Math.PI * 2);
+          ctx.fill();
+
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.needsUpdate = true;
+          return texture;
+        }
+
+        function makeGrassTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 512;
+          canvas.height = 512;
+          const ctx = canvas.getContext("2d");
+          const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          grad.addColorStop(0, "#a9da8c");
+          grad.addColorStop(1, "#cde8ac");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          for (let i = 0; i < 600; i += 1) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const len = 4 + Math.random() * 8;
+            ctx.strokeStyle = i % 11 === 0 ? "rgba(255,255,255,0.22)" : "rgba(89,139,73,0.16)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(i) * len, y + Math.sin(i * 1.3) * len);
+            ctx.stroke();
+          }
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(1.2, 1.2);
+          texture.needsUpdate = true;
+          return texture;
+        }
+
+        function makeWaterTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 512;
+          canvas.height = 512;
+          const ctx = canvas.getContext("2d");
+          const grad = ctx.createLinearGradient(0, 0, 512, 512);
+          grad.addColorStop(0, "#b8ecff");
+          grad.addColorStop(1, "#63cfe6");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 512, 512);
+          ctx.strokeStyle = "rgba(255,255,255,0.34)";
+          ctx.lineWidth = 4;
+          for (let i = 0; i < 12; i += 1) {
+            ctx.beginPath();
+            const y = 40 + i * 40;
+            ctx.moveTo(0, y);
+            ctx.bezierCurveTo(120, y - 12, 260, y + 12, 512, y - 4);
+            ctx.stroke();
+          }
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(1.0, 1.0);
+          texture.needsUpdate = true;
+          return texture;
+        }
+
+        function makeHeartTexture(fill = "#ff86b4", stroke = "#ffffff") {
+          const canvas = document.createElement("canvas");
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, 256, 256);
+          ctx.translate(128, 132);
+          ctx.scale(1.1, 1.1);
+          ctx.beginPath();
+          heartPath(ctx, 0, 0, 78);
+          ctx.fillStyle = fill;
+          ctx.fill();
+          ctx.lineWidth = 8;
+          ctx.strokeStyle = stroke;
+          ctx.stroke();
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.transparent = true;
+          texture.needsUpdate = true;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          return texture;
+        }
+
+        function makeSparkTexture(fill = "#ffe47d", glow = "#ff9dc8") {
+          const canvas = document.createElement("canvas");
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext("2d");
+          const grad = ctx.createRadialGradient(128, 128, 12, 128, 128, 110);
+          grad.addColorStop(0, "rgba(255,255,255,1)");
+          grad.addColorStop(0.2, fill);
+          grad.addColorStop(1, "rgba(255,255,255,0)");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 256, 256);
+          ctx.save();
+          ctx.translate(128, 128);
+          ctx.fillStyle = glow;
+          starPath(ctx, 0, 0, 66, 30, 5);
+          ctx.fill();
+          ctx.restore();
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.transparent = true;
+          texture.needsUpdate = true;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          return texture;
+        }
+
+        function makeBannerTexture(text) {
+          const canvas = document.createElement("canvas");
+          canvas.width = 1024;
+          canvas.height = 256;
+          const ctx = canvas.getContext("2d");
+          const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          grad.addColorStop(0, "#ffdfe9");
+          grad.addColorStop(0.5, "#fff7dc");
+          grad.addColorStop(1, "#dff6ff");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = "rgba(255,255,255,0.82)";
+          roundRect(ctx, 30, 30, 964, 196, 44);
+          ctx.fill();
+          ctx.fillStyle = "#3b4c5f";
+          ctx.font = "700 72px Georgia, Times New Roman, serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, 512, 128);
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.needsUpdate = true;
+          return texture;
+        }
+
+        function heartPath(ctx, x, y, size) {
+          const s = size / 100;
+          ctx.moveTo(x, y + s * 30);
+          ctx.bezierCurveTo(x - s * 50, y - s * 10, x - s * 50, y - s * 60, x, y - s * 35);
+          ctx.bezierCurveTo(x + s * 50, y - s * 60, x + s * 50, y - s * 10, x, y + s * 30);
+        }
+
+        function starPath(ctx, x, y, outer, inner, points) {
+          ctx.beginPath();
+          for (let i = 0; i < points * 2; i += 1) {
+            const radius = i % 2 === 0 ? outer : inner;
+            const angle = (-Math.PI / 2) + (i * Math.PI) / points;
+            const px = x + Math.cos(angle) * radius;
+            const py = y + Math.sin(angle) * radius;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+        }
+
+        function blob(ctx, x, y, rx, ry) {
+          ctx.beginPath();
+          ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+          const radius = Math.min(r, w / 2, h / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + w, y, x + w, y + h, radius);
+          ctx.arcTo(x + w, y + h, x, y + h, radius);
+          ctx.arcTo(x, y + h, x, y, radius);
+          ctx.arcTo(x, y, x + w, y, radius);
+          ctx.closePath();
+        }
+
+        function colorToCss(hex, alpha) {
+          const c = new THREE.Color(hex);
+          return `rgba(${Math.round(c.r * 255)}, ${Math.round(c.g * 255)}, ${Math.round(c.b * 255)}, ${alpha})`;
+        }
+
+        function initAudio() {
+          if (!musicConfig.src) {
+            updateMusicButton();
+            return;
+          }
+          const audio = document.createElement("audio");
+          audio.src = musicConfig.src;
+          audio.loop = musicConfig.loop !== false;
+          audio.volume = typeof musicConfig.volume === "number" ? musicConfig.volume : 0.35;
+          audio.preload = "none";
+          audio.addEventListener("error", () => {
+            audio.pause();
+            mainState.musicPlaying = false;
+            stopMusicWatchdog();
+            updateMusicButton();
+          });
+          mainState.audio = audio;
+          updateMusicButton();
+        }
+
+        function bindEvents() {
+          window.addEventListener("keydown", onKeyDown);
+          window.addEventListener("keyup", onKeyUp);
+          musicBtn.addEventListener("click", toggleMusic);
+          modalClose.addEventListener("click", closeModal);
+          modalOverlay.addEventListener("click", (event) => {
+            if (event.target === modalOverlay) closeModal();
+          });
+          imageViewerClose.addEventListener("click", closeImageViewer);
+          imageViewer.addEventListener("click", (event) => {
+            if (event.target === imageViewer) closeImageViewer();
+          });
+          rendererDom().addEventListener("pointerdown", onPointerDown);
+          rendererDom().addEventListener("pointermove", onPointerMove);
+          window.addEventListener("pointerup", () => {
+            if (mainState.modalOpen) return;
+          });
+        }
+
+        function rendererDom() {
+          return mainState.renderer ? mainState.renderer.domElement : sceneRoot.querySelector("canvas");
+        }
+
+        function onResize() {
+          mainState.viewWidth = window.innerWidth;
+          mainState.viewHeight = window.innerHeight;
+          if (!mainState.camera || !mainState.renderer) return;
+          mainState.camera.aspect = window.innerWidth / window.innerHeight;
+          mainState.camera.updateProjectionMatrix();
+          mainState.renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onKeyDown(event) {
+          if (event.key === "Escape") {
+            if (mainState.imageViewerOpen) {
+              event.preventDefault();
+              closeImageViewer();
+              return;
+            }
+            if (mainState.modalOpen) {
+              event.preventDefault();
+              closeModal();
+            }
+            return;
+          }
+
+          if (mainState.modalOpen) return;
+
+          const key = normalizeKey(event.key);
+          if (!key) return;
+          event.preventDefault();
+          if (!mainState.keys) mainState.keys = new Set();
+          mainState.keys.add(key);
+          mainState.playerTarget = null;
+        }
+
+        function onKeyUp(event) {
+          const key = normalizeKey(event.key);
+          if (!key) return;
+          if (mainState.keys) mainState.keys.delete(key);
+        }
+
+        function normalizeKey(key) {
+          if (key === "ArrowUp" || key === "w" || key === "W") return "up";
+          if (key === "ArrowDown" || key === "s" || key === "S") return "down";
+          if (key === "ArrowLeft" || key === "a" || key === "A") return "left";
+          if (key === "ArrowRight" || key === "d" || key === "D") return "right";
+          return null;
+        }
+
+        function onPointerMove(event) {
+          if (!mainState.renderer || !mainState.camera) return;
+          const action = pickAction(event.clientX, event.clientY);
+          rendererDom().style.cursor = action ? "pointer" : mainState.modalOpen ? "default" : "crosshair";
+        }
+
+        function onPointerDown(event) {
+          if (mainState.modalOpen || !mainState.renderer || !mainState.camera) return;
+          const result = pickAction(event.clientX, event.clientY);
+          if (result && result.actionId) {
+            handleAction(result.actionId);
+            return;
+          }
+          if (result && result.point) {
+            setPlayerTarget(result.point.x, result.point.z);
+          }
+        }
+
+        function pickAction(clientX, clientY) {
+          const dom = rendererDom();
+          const rect = dom.getBoundingClientRect();
+          const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+          const y = -(((clientY - rect.top) / rect.height) * 2 - 1);
+          mainState.pointer.set(x, y);
+          mainState.raycaster.setFromCamera(mainState.pointer, mainState.camera);
+          const hits = mainState.raycaster.intersectObjects([...(mainState.clickTargets || []), mainState.ground], true);
+          if (!hits.length) return null;
+
+          for (const hit of hits) {
+            const actionId = findActionId(hit.object);
+            if (actionId) {
+              return { actionId };
+            }
+            if (hit.object === mainState.ground || hit.object.userData.kind === "ground") {
+              const pt = hit.point.clone();
+              return { point: { x: clamp(pt.x, world.minX + playerRadius, world.maxX - playerRadius), z: clamp(pt.z, world.minZ + playerRadius, world.maxZ - playerRadius) } };
+            }
+          }
+          return null;
+        }
+
+        function findActionId(object) {
+          let current = object;
+          while (current) {
+            if (current.userData && current.userData.actionId) return current.userData.actionId;
+            current = current.parent;
+          }
+          return null;
+        }
+
+        function setPlayerTarget(x, z) {
+          const safe = clampPointToWalkable(mainState.player.group.position.x, mainState.player.group.position.z, x, z, playerRadius);
+          mainState.playerTarget = safe;
+        }
+
+        function clampPointToWalkable(fromX, fromZ, toX, toZ, radius) {
+          const steps = Math.max(1, Math.ceil(Math.hypot(toX - fromX, toZ - fromZ) / 0.18));
+          let last = { x: fromX, z: fromZ };
+          for (let i = 1; i <= steps; i += 1) {
+            const t = i / steps;
+            const x = fromX + (toX - fromX) * t;
+            const z = fromZ + (toZ - fromZ) * t;
+            if (isWalkable(x, z, radius)) {
+              last = { x, z };
+            } else {
+              break;
+            }
+          }
+          return last;
+        }
+
+        function isWalkable(x, z, radius) {
+          if (x < world.minX + radius || x > world.maxX - radius || z < world.minZ + radius || z > world.maxZ - radius) {
+            return false;
+          }
+          for (const obstacle of mainState.obstacles) {
+            if (circleRectCollision(x, z, radius, obstacle)) return false;
+          }
+          return true;
+        }
+
+        function circleRectCollision(px, pz, radius, rect) {
+          const cx = clamp(px, rect.x, rect.x + rect.w);
+          const cz = clamp(pz, rect.z, rect.z + rect.d);
+          const dx = px - cx;
+          const dz = pz - cz;
+          return dx * dx + dz * dz < radius * radius;
+        }
+
+        function handleAction(actionId) {
+          if (actionId === "female") {
+            openFemaleDialogue();
+            return;
+          }
+          const area = mainState.interactables.find((item) => item.id === actionId);
+          if (area) {
+            area.inRange = true;
+          }
+          if (actionId === "letter") {
+            openModal("letter", { content: letterContent }, true);
+            return;
+          }
+          if (actionId === "gallery") {
+            openModal("gallery", { items: galleryItems }, true);
+            return;
+          }
+          if (actionId === "kitchen") {
+            openModal("food", { items: foodItems }, true);
+            return;
+          }
+          if (actionId === "pool") {
+            openModal("pool", { content: poolContent }, true);
+            return;
+          }
+          if (actionId === "dressingRoom") {
+            openModal("dressingRoom", { items: dressingRoomItems }, true);
+            return;
+          }
+        }
+
+        function openFemaleDialogue() {
+          if (!meDialogues.length) return;
+          const index = Math.floor(Math.random() * meDialogues.length);
+          showBubble(dialogueBubble, meDialogues[index], mainState.female.group.position, 2.55, 3200, "dialogue");
+          mainState.femaleBubbleTimer = performance.now() + 3200;
+        }
+
+        function openModal(kind, payload, countMain) {
+          if (mainState.modalOpen) return;
+          mainState.modalOpen = true;
+          mainState.playerTarget = null;
+          if (mainState.keys) mainState.keys.clear();
+          modalOverlay.classList.remove("hidden");
+          modalOverlay.setAttribute("aria-hidden", "false");
+          modalShell.className = "modalShell kind-" + kind;
+          mainState.currentModalKind = kind;
+          renderModal(kind, payload);
+          if (countMain) markDiscovery(kind);
+        }
+
+        function markDiscovery(kind) {
+          if (!mainOrder.includes(kind)) return;
+          const area = mainState.interactables.find((item) => item.id === kind);
+          if (area) {
+            area.opened = true;
+          }
+          if (!mainState.mainDiscoveries.has(kind)) {
+            mainState.mainDiscoveries.add(kind);
+            updateProgress();
+            startCompletionCelebrationIfReady();
+          }
+        }
+
+        function updateProgress() {
+          // 进度只保留内部逻辑，不再显示常驻 HUD。
+        }
+
+        function startCompletionCelebrationIfReady() {
+          if (mainState.mainDiscoveries.size < mainOrder.length) return;
+          mainState.completionPending = true;
+          spawnCompletionBurst();
+          if (!mainState.modalOpen) {
+            openCompletionSoon();
+          }
+        }
+
+        function openCompletionSoon() {
+          if (mainState.completionShown) return;
+          if (mainState.completionTimer) clearTimeout(mainState.completionTimer);
+          mainState.completionTimer = setTimeout(() => {
+            if (!mainState.modalOpen && mainState.completionPending && !mainState.completionShown) {
+              openCompletionModal();
+            }
+          }, 260);
+        }
+
+        function openCompletionModal() {
+          if (mainState.completionShown) return;
+          mainState.completionShown = true;
+          openModal("completion", { completion: completionConfig }, false);
+        }
+
+        function closeModal() {
+          mainState.modalOpen = false;
+          modalOverlay.classList.add("hidden");
+          modalOverlay.setAttribute("aria-hidden", "true");
+          modalBody.textContent = "";
+          if (mainState.completionPending && !mainState.completionShown && mainState.mainDiscoveries.size >= mainOrder.length) {
+            openCompletionSoon();
+          }
+        }
+
+        function renderModal(kind, payload) {
+          modalBody.textContent = "";
+          if (kind === "gallery") {
+            modalKicker.textContent = "Gallery";
+            modalTitle.textContent = "Gallery";
+            modalSubtitle.textContent = "Little scenes, soft memories, and places that stayed warm in my mind.";
+            modalBody.appendChild(buildMediaGrid(payload.items, "gallery"));
+          } else if (kind === "food") {
+            modalKicker.textContent = "Kitchen";
+            modalTitle.textContent = "Kitchen";
+            modalSubtitle.textContent = "Some meals are more than meals. They become part of the story.";
+            modalBody.appendChild(buildMediaGrid(payload.items, "food"));
+          } else if (kind === "pool") {
+            modalKicker.textContent = "Pool";
+            modalTitle.textContent = payload.content.title;
+            modalSubtitle.textContent = payload.content.description;
+          } else if (kind === "dressingRoom") {
+            modalKicker.textContent = "Dressing Room";
+            modalTitle.textContent = "Dressing Room";
+            modalSubtitle.textContent = "A small room for looks, mirrors, and the versions of us that felt extra nice that day.";
+            modalBody.appendChild(buildMediaGrid(payload.items, "dressing"));
+          } else if (kind === "letter") {
+            modalKicker.textContent = "";
+            modalTitle.textContent = payload.content.title;
+            modalSubtitle.textContent = "";
+            modalBody.appendChild(buildLetterPanel(payload.content));
+          } else if (kind === "completion") {
+            modalKicker.textContent = "Celebration";
+            modalTitle.textContent = payload.completion.title;
+            modalSubtitle.textContent = payload.completion.message;
+            modalBody.appendChild(buildCompletionPanel(payload.completion));
+          }
+        }
+
+        function buildMediaGrid(items, mode) {
+          const grid = document.createElement("div");
+          grid.className = "mediaGrid";
+          items.forEach((item, index) => {
+            const card = document.createElement("article");
+            const shape = index % 11 === 0 ? "wide" : index % 7 === 0 ? "tall" : "";
+            card.className = "mediaCard " + shape;
+            card.tabIndex = 0;
+            card.setAttribute("role", "button");
+            card.setAttribute("aria-label", "Open photo");
+            const thumb = document.createElement("div");
+            thumb.className = "mediaThumb";
+            const fallback = document.createElement("div");
+            fallback.className = "mediaFallback";
+            fallback.innerHTML = `<div class="emoji">${item.emoji || "✨"}</div><div>Image missing, so the memory stays as a soft placeholder.</div>`;
+            const img = document.createElement("img");
+            img.alt = item.title;
+            img.loading = "lazy";
+            img.decoding = "async";
+            if (item.image) {
+              img.src = item.image;
+              img.addEventListener("error", () => {
+                img.remove();
+                card.classList.add("isMissing");
+              });
+              img.addEventListener("load", () => {
+                fallback.remove();
+              });
+            } else {
+              img.remove();
+            }
+            thumb.appendChild(fallback);
+            if (item.image) thumb.appendChild(img);
+
+            card.append(thumb);
+            card.addEventListener("click", () => openImageViewer(item));
+            card.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openImageViewer(item);
+              }
+            });
+            grid.appendChild(card);
+          });
+          return grid;
+        }
+
+        function openImageViewer(item) {
+          if (!item) return;
+          mainState.imageViewerOpen = true;
+          imageViewer.classList.remove("hidden");
+          imageViewer.setAttribute("aria-hidden", "false");
+          imageViewerFallback.classList.add("hidden");
+          imageViewerImage.classList.remove("hidden");
+          imageViewerImage.alt = item.title || "Memory photo";
+          imageViewerCaption.textContent = "";
+          imageViewerCaption.classList.add("hidden");
+          imageViewerImage.onerror = () => {
+            imageViewerImage.classList.add("hidden");
+            imageViewerFallback.classList.remove("hidden");
+          };
+          imageViewerImage.onload = () => {
+            imageViewerImage.classList.remove("hidden");
+            imageViewerFallback.classList.add("hidden");
+          };
+          if (item.image) {
+            imageViewerImage.src = item.image;
+          } else {
+            imageViewerImage.removeAttribute("src");
+            imageViewerImage.classList.add("hidden");
+            imageViewerFallback.classList.remove("hidden");
+          }
+        }
+
+        function closeImageViewer() {
+          mainState.imageViewerOpen = false;
+          imageViewer.classList.add("hidden");
+          imageViewer.setAttribute("aria-hidden", "true");
+          imageViewerImage.removeAttribute("src");
+        }
+
+        function buildTextPanel(content) {
+          const wrap = document.createElement("div");
+          wrap.className = "infoCard";
+          const title = document.createElement("h3");
+          title.textContent = content.title;
+          const desc = document.createElement("p");
+          desc.textContent = content.description;
+          const list = document.createElement("ul");
+          list.className = "infoList";
+          content.items.forEach((line) => {
+            const li = document.createElement("li");
+            const bullet = document.createElement("span");
+            bullet.className = "bullet";
+            bullet.textContent = content.emoji || "•";
+            const text = document.createElement("span");
+            text.textContent = line;
+            li.append(bullet, text);
+            list.appendChild(li);
+          });
+          wrap.append(title, desc, list);
+          return wrap;
+        }
+
+        function buildLetterPanel(content) {
+          const paper = document.createElement("div");
+          paper.className = "paperCard";
+          const body = content.body ? content.body.trim() : "";
+          if (body) {
+            const pre = document.createElement("pre");
+            pre.textContent = body;
+            paper.append(pre);
+          }
+          if (Array.isArray(content.images) && content.images.length) {
+            const photos = document.createElement("div");
+            photos.className = "letterPhotos";
+            photos.appendChild(buildMediaGrid(content.images, "letter"));
+            paper.appendChild(photos);
+          }
+          return paper;
+        }
+
+        function buildCompletionPanel(completion) {
+          const panel = document.createElement("div");
+          panel.className = "completionPanel";
+          const video = document.createElement("video");
+          video.className = "completionVideo hidden";
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.src = completion.video;
+
+          const fallback = document.createElement("div");
+          fallback.className = "completionFallback";
+          fallback.textContent = "No video is attached, so the celebration stays in words and hearts.";
+
+          video.addEventListener("error", () => {
+            video.classList.add("hidden");
+            fallback.classList.remove("hidden");
+          });
+
+          video.addEventListener("loadeddata", () => {
+            video.classList.remove("hidden");
+            fallback.classList.add("hidden");
+          });
+
+          panel.append(video, fallback);
+          return panel;
+        }
+
+        function updateMusicButton() {
+          if (!mainState.audio) {
+            musicBtn.textContent = "Music Off";
+            musicBtn.title = "Background music is optional";
+            return;
+          }
+          musicBtn.textContent = mainState.musicPlaying ? "Music On" : "Music Off";
+          musicBtn.title = mainState.musicPlaying ? "Pause background music" : "Play background music";
+        }
+
+        function stopMusicWatchdog() {
+          if (mainState.musicWatchdog) {
+            clearInterval(mainState.musicWatchdog);
+            mainState.musicWatchdog = null;
+          }
+        }
+
+        function startMusicWatchdog() {
+          stopMusicWatchdog();
+          mainState.musicWatchdog = setInterval(() => {
+            const audio = mainState.audio;
+            if (!audio) {
+              stopMusicWatchdog();
+              return;
+            }
+            if (!mainState.musicPlaying) {
+              stopMusicWatchdog();
+              return;
+            }
+            if (audio.error || audio.networkState === 3) {
+              audio.pause();
+              mainState.musicPlaying = false;
+              updateMusicButton();
+              stopMusicWatchdog();
+            }
+          }, 500);
+        }
+
+        async function toggleMusic() {
+          if (!mainState.audio) {
+            return;
+          }
+          try {
+            if (mainState.musicPlaying) {
+              mainState.audio.pause();
+              mainState.musicPlaying = false;
+              stopMusicWatchdog();
+              updateMusicButton();
+              return;
+            }
+            await mainState.audio.play().catch(() => {});
+            mainState.musicPlaying = !mainState.audio.paused && !mainState.audio.error;
+            if (!mainState.musicPlaying) {
+              mainState.audio.pause();
+              stopMusicWatchdog();
+            }
+            updateMusicButton();
+            if (mainState.musicPlaying) startMusicWatchdog();
+          } catch (error) {
+            console.error(error);
+            mainState.musicPlaying = false;
+            stopMusicWatchdog();
+            updateMusicButton();
+          }
+        }
+
+        function showBubble(el, text, worldPosition, height, duration, kind) {
+          el.textContent = text;
+          el.className = "floatingBubble show " + kind;
+          el.dataset.until = String(performance.now() + duration);
+          updateBubble(el, worldPosition, height);
+          if (el._timer) clearTimeout(el._timer);
+          el._timer = setTimeout(() => {
+            el.classList.remove("show");
+            el.classList.add("hidden");
+          }, duration);
+        }
+
+        function updateBubble(el, worldPosition, height) {
+          if (!mainState.camera || !mainState.renderer) return;
+          const vector = new THREE.Vector3(worldPosition.x, 0, worldPosition.z);
+          vector.y = height;
+          vector.project(mainState.camera);
+          const x = (vector.x * 0.5 + 0.5) * mainState.viewWidth;
+          const y = (-vector.y * 0.5 + 0.5) * mainState.viewHeight;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+        }
+
+        function spawnCompletionBurst() {
+          const origin = { x: 0, y: 2.4, z: 2.8 };
+          const colors = [0xff87b0, 0xffd06d, 0xb5e6ff, 0xd8b8ff, 0xffffff];
+          const textures = [mainState.textures.spark, mainState.textures.heart, mainState.textures.pinkSpark];
+          for (let i = 0; i < 4; i += 1) {
+            setTimeout(() => {
+              spawnParticleBurst(
+                {
+                  x: origin.x + (Math.random() - 0.5) * 2.6,
+                  y: origin.y + Math.random() * 0.8,
+                  z: origin.z + (Math.random() - 0.5) * 1.8,
+                },
+                22,
+                textures[i % textures.length],
+                colors,
+                1.45,
+                0.33,
+                1.95,
+                2.15,
+              );
+            }, i * 130);
+          }
+        }
+
+        function spawnKissBurst(x, y, z) {
+          const colors = [0xff89b1, 0xffc8dd, 0xffffff];
+          spawnParticleBurst({ x, y, z }, 8, mainState.textures.pinkSpark, colors, 0.48, 0.18, 0.9, 1.2);
+        }
+
+        function spawnKissHearts(x, y, z) {
+          const count = 2 + Math.floor(Math.random() * 3);
+          const palettes = [0xff86b4, 0xffc5db, 0xffffff];
+          for (let i = 0; i < count; i += 1) {
+            const material = new THREE.SpriteMaterial({
+              map: mainState.textures.heart,
+              color: palettes[i % palettes.length],
+              transparent: true,
+              opacity: 0.95,
+              depthWrite: false,
+              blending: THREE.NormalBlending,
+            });
+            const heart = new THREE.Sprite(material);
+            const scale = 1.28 + Math.random() * 0.42;
+            heart.scale.set(scale, scale, 1);
+            heart.position.set(
+              x + (Math.random() - 0.5) * 0.68,
+              y + 0.34 + Math.random() * 0.42,
+              z + (Math.random() - 0.5) * 0.54,
+            );
+            mainState.scene.add(heart);
+            mainState.heartBursts.push({
+              sprite: heart,
+              material,
+              baseScale: scale,
+              velocity: {
+                x: (Math.random() - 0.5) * 0.34,
+                y: 0.62 + Math.random() * 0.18,
+                z: (Math.random() - 0.5) * 0.26,
+              },
+              life: 1.55 + Math.random() * 0.55,
+              age: 0,
+              sway: Math.random() * Math.PI * 2,
+            });
+          }
+        }
+
+        function spawnParticleBurst(origin, count, texture, palette, speed, size, life, gravity) {
+          const geometry = new THREE.BufferGeometry();
+          const positions = new Float32Array(count * 3);
+          const colors = new Float32Array(count * 3);
+          const velocities = [];
+          for (let i = 0; i < count; i += 1) {
+            positions[i * 3] = origin.x;
+            positions[i * 3 + 1] = origin.y;
+            positions[i * 3 + 2] = origin.z;
+            const color = new THREE.Color(palette[i % palette.length]);
+            colors[i * 3] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
+            velocities.push({
+              x: (Math.random() - 0.5) * speed,
+              y: speed * (0.6 + Math.random()) + 0.35,
+              z: (Math.random() - 0.5) * speed,
+            });
+          }
+          geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+          const material = new THREE.PointsMaterial({
+            map: texture,
+            vertexColors: true,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            size,
+            sizeAttenuation: true,
+            opacity: 1,
+          });
+          const points = new THREE.Points(geometry, material);
+          points.userData = { velocities, life, age: 0, gravity };
+          mainState.scene.add(points);
+          mainState.particleBursts.push(points);
+        }
+
+        function updateParticles(dt) {
+          for (let i = mainState.particleBursts.length - 1; i >= 0; i -= 1) {
+            const burst = mainState.particleBursts[i];
+            const attr = burst.geometry.getAttribute("position");
+            const velocities = burst.userData.velocities;
+            burst.userData.age += dt;
+            for (let j = 0; j < velocities.length; j += 1) {
+              const vx = velocities[j].x;
+              const vy = velocities[j].y;
+              const vz = velocities[j].z;
+              attr.array[j * 3] += vx * dt;
+              attr.array[j * 3 + 1] += vy * dt;
+              attr.array[j * 3 + 2] += vz * dt;
+              velocities[j].y -= burst.userData.gravity * dt;
+            }
+            attr.needsUpdate = true;
+            burst.material.opacity = Math.max(0, 1 - burst.userData.age / burst.userData.life);
+            if (burst.userData.age >= burst.userData.life) {
+              mainState.scene.remove(burst);
+              burst.geometry.dispose();
+              burst.material.dispose();
+              mainState.particleBursts.splice(i, 1);
+            }
+          }
+        }
+
+        function updateHeartBursts(dt) {
+          for (let i = mainState.heartBursts.length - 1; i >= 0; i -= 1) {
+            const burst = mainState.heartBursts[i];
+            burst.age += dt;
+            burst.sprite.position.x += burst.velocity.x * dt;
+            burst.sprite.position.y += burst.velocity.y * dt;
+            burst.sprite.position.z += burst.velocity.z * dt;
+            burst.sprite.scale.setScalar(burst.baseScale * (1 + Math.sin(burst.age * 6.5 + burst.sway) * 0.06));
+            burst.material.opacity = Math.max(0, 0.98 - burst.age / burst.life);
+            if (burst.age >= burst.life) {
+              mainState.scene.remove(burst.sprite);
+              burst.material.dispose();
+              mainState.heartBursts.splice(i, 1);
+            }
+          }
+        }
+
+        function updateCharacters(dt, elapsed) {
+          const player = mainState.player;
+          const female = mainState.female;
+          if (!player || !female) return;
+
+          updatePlayer(dt, elapsed);
+          updateFemale(dt, elapsed);
+          updateCamera(dt);
+          updateAnchors();
+          updateAreaStates();
+          updateWater(elapsed);
+          updateHeartBursts(dt);
+          updateBubblePositions(elapsed);
+          updateKissReaction(elapsed);
+        }
+
+        function updateWater(elapsed) {
+          const poolArea = mainState.interactables.find((area) => area.id === "pool");
+          if (!poolArea) return;
+          const water = poolArea.group.userData.water;
+          const shimmer = poolArea.group.userData.waterShimmer;
+          if (!water) return;
+          water.material.map.offset.x = (elapsed * 0.012) % 1;
+          water.material.map.offset.y = (elapsed * 0.007) % 1;
+          water.material.opacity = 0.94 + Math.sin(elapsed * 2.2) * 0.022;
+          if (shimmer && shimmer.material) {
+            shimmer.material.opacity = 0.05 + (Math.sin(elapsed * 3.2) + 1) * 0.018;
+          }
+        }
+
+        function updatePlayer(dt, elapsed) {
+          const entity = mainState.player;
+          const pos = entity.group.position;
+          let dx = 0;
+          let dz = 0;
+          const keys = mainState.keys || new Set();
+          const keyCount = keys.size;
+          const speed = keyCount > 0 ? 4.0 : 0;
+
+          if (!mainState.modalOpen && keyCount > 0) {
+            if (keys.has("up")) dz -= 1;
+            if (keys.has("down")) dz += 1;
+            if (keys.has("left")) dx -= 1;
+            if (keys.has("right")) dx += 1;
+            const len = Math.hypot(dx, dz) || 1;
+            dx = (dx / len) * speed * dt;
+            dz = (dz / len) * speed * dt;
+          } else if (!mainState.modalOpen && mainState.playerTarget) {
+            const tx = mainState.playerTarget.x;
+            const tz = mainState.playerTarget.z;
+            const vx = tx - pos.x;
+            const vz = tz - pos.z;
+            const dist = Math.hypot(vx, vz);
+            if (dist < 0.14) {
+              mainState.playerTarget = null;
+            } else {
+              const move = Math.min(4.0 * dt, dist);
+              dx = (vx / dist) * move;
+              dz = (vz / dist) * move;
+            }
+          }
+
+          const moved = moveEntity(pos, dx, dz, playerRadius);
+          const moving = Math.hypot(moved.dx, moved.dz) > 0.0001;
+          entity.group.rotation.y = moving ? Math.atan2(moved.dx, moved.dz) : entity.group.rotation.y;
+          entity.group.position.y = Math.sin(elapsed * 6.0) * (moving ? 0.05 : 0.02);
+          animateCowboy(entity, moving, elapsed);
+        }
+
+        function updateFemale(dt, elapsed) {
+          const entity = mainState.female;
+          const pos = entity.group.position;
+          if (performance.now() > mainState.femaleTargetAt || !mainState.femaleTarget || distance2D(pos, mainState.femaleTarget) < 0.2) {
+            mainState.femaleTarget = chooseFemaleTarget();
+            mainState.femaleTargetAt = performance.now() + 1800 + Math.random() * 1600;
+          }
+
+          const tx = mainState.femaleTarget.x;
+          const tz = mainState.femaleTarget.z;
+          const vx = tx - pos.x;
+          const vz = tz - pos.z;
+          const dist = Math.hypot(vx, vz);
+          let dx = 0;
+          let dz = 0;
+          if (dist > 0.01) {
+            const move = Math.min(1.55 * dt, dist);
+            dx = (vx / dist) * move;
+            dz = (vz / dist) * move;
+          }
+          const moved = moveEntity(pos, dx, dz, femaleRadius);
+          const moving = Math.hypot(moved.dx, moved.dz) > 0.0001;
+          if (moving) {
+            entity.group.rotation.y = Math.atan2(moved.dx, moved.dz);
+          }
+          entity.group.position.y = Math.sin(elapsed * 4.8 + 0.5) * (moving ? 0.04 : 0.015);
+          animateFemale(entity, moving, elapsed);
+        }
+
+        function chooseFemaleTarget() {
+          const tableCenter = { x: 0, z: 2.7 };
+          const candidates = [
+            { x: -8.2, z: -6.1 },
+            { x: -5.4, z: -3.2 },
+            { x: -2.8, z: -0.5 },
+            { x: 1.8, z: -3.8 },
+            { x: 5.4, z: -1.8 },
+            { x: 7.0, z: 2.2 },
+            { x: 4.7, z: 5.8 },
+            { x: 0.2, z: 7.1 },
+            { x: -4.9, z: 6.3 },
+            { x: -8.6, z: 4.5 },
+            { x: -10.0, z: 1.2 },
+            { x: -6.7, z: 1.2 },
+            { x: 8.4, z: 6.9 },
+            { x: 10.2, z: 1.2 },
+          ];
+          for (let i = 0; i < 30; i += 1) {
+            const target = candidates[Math.floor(Math.random() * candidates.length)];
+            if (isWalkable(target.x, target.z, femaleRadius) && distance2D(target, tableCenter) > 4.2) return target;
+          }
+          return { x: -7.4, z: 1.7 };
+        }
+
+        function moveEntity(position, dx, dz, radius) {
+          const startX = position.x;
+          const startZ = position.z;
+          let nextX = startX;
+          let nextZ = startZ;
+
+          if (dx !== 0) {
+            const candidateX = startX + dx;
+            if (isWalkable(candidateX, startZ, radius)) {
+              nextX = candidateX;
+            }
+          }
+
+          if (dz !== 0) {
+            const candidateZ = startZ + dz;
+            if (isWalkable(nextX, candidateZ, radius)) {
+              nextZ = candidateZ;
+            } else if (isWalkable(startX, candidateZ, radius)) {
+              nextX = startX;
+              nextZ = candidateZ;
+            }
+          }
+
+          position.x = clamp(nextX, world.minX + radius, world.maxX - radius);
+          position.z = clamp(nextZ, world.minZ + radius, world.maxZ - radius);
+          return { dx: position.x - startX, dz: position.z - startZ };
+        }
+
+        function animateCowboy(entity, moving, elapsed) {
+          const cycle = elapsed * (moving ? 10 : 2.5);
+          entity.legL.rotation.x = Math.sin(cycle) * (moving ? 0.62 : 0.1);
+          entity.legR.rotation.x = -Math.sin(cycle) * (moving ? 0.62 : 0.1);
+          entity.armL.rotation.x = -Math.sin(cycle) * (moving ? 0.32 : 0.08);
+          entity.armR.rotation.x = Math.sin(cycle) * (moving ? 0.32 : 0.08);
+          entity.shadow.scale.setScalar(1 + Math.sin(elapsed * 4.5) * 0.03);
+        }
+
+        function animateFemale(entity, moving, elapsed) {
+          const cycle = elapsed * (moving ? 8 : 2);
+          entity.legL.rotation.x = Math.sin(cycle) * (moving ? 0.38 : 0.05);
+          entity.legR.rotation.x = -Math.sin(cycle) * (moving ? 0.38 : 0.05);
+          entity.armL.rotation.x = -Math.sin(cycle) * (moving ? 0.18 : 0.04);
+          entity.armR.rotation.x = Math.sin(cycle) * (moving ? 0.18 : 0.04);
+          entity.shadow.scale.setScalar(1 + Math.sin(elapsed * 3.5 + 0.4) * 0.03);
+        }
+
+        function updateCamera(dt) {
+          const camera = mainState.camera;
+          const player = mainState.player.group.position;
+          const targetX = clamp(player.x * 0.25, -2.2, 2.2);
+          const targetZ = 20.8 + clamp(player.z * 0.08, -0.5, 0.5);
+          camera.position.x = lerp(camera.position.x, targetX, 0.04);
+          camera.position.z = lerp(camera.position.z, targetZ, 0.04);
+          camera.position.y = lerp(camera.position.y, 17.2 + Math.sin(performance.now() * 0.0008) * 0.1, 0.02);
+          camera.lookAt(lerp(0, player.x * 0.12, 1), 0.78, lerp(0, player.z * 0.12, 1));
+        }
+
+        function updateAnchors() {
+          if (dialogueBubble.classList.contains("show")) {
+            updateBubble(dialogueBubble, mainState.female.group.position, 2.55);
+          }
+          if (kissBubble.classList.contains("show")) {
+            const mid = {
+              x: (mainState.player.group.position.x + mainState.female.group.position.x) / 2,
+              z: (mainState.player.group.position.z + mainState.female.group.position.z) / 2,
+            };
+            updateBubble(kissBubble, mid, 2.85);
+          }
+        }
+
+        function updateBubblePositions(elapsed) {
+          if (dialogueBubble.classList.contains("show") && performance.now() > Number(dialogueBubble.dataset.until || 0)) {
+            dialogueBubble.classList.remove("show");
+            dialogueBubble.classList.add("hidden");
+          }
+          if (kissBubble.classList.contains("show") && performance.now() > Number(kissBubble.dataset.until || 0)) {
+            kissBubble.classList.remove("show");
+            kissBubble.classList.add("hidden");
+          }
+        }
+
+        function updateAreaStates() {
+          for (const area of mainState.interactables) {
+            const center = area.pos;
+            const dist = distance2D(mainState.player.group.position, center);
+            const inside = dist < area.triggerRadius;
+            if (inside && !area.inRange) {
+              area.inRange = true;
+              if (!mainState.modalOpen) {
+                handleAreaEntry(area);
+              }
+            }
+            if (!inside) {
+              area.inRange = false;
+            }
+            updateAreaMarker(area);
+          }
+        }
+
+        function handleAreaEntry(area) {
+          if (area.id === "gallery") return openModal("gallery", { items: galleryItems }, true);
+          if (area.id === "kitchen") return openModal("food", { items: foodItems }, true);
+          if (area.id === "pool") return openModal("pool", { content: poolContent }, true);
+          if (area.id === "dressingRoom") return openModal("dressingRoom", { items: dressingRoomItems }, true);
+          if (area.id === "letter") return openModal("letter", { content: letterContent }, true);
+        }
+
+        function updateAreaMarker(area) {
+          const board = area.marker.userData.board;
+          if (board && board.material) {
+            const t = area.opened ? 0.38 : 0.12;
+            board.material.emissive = new THREE.Color(areaColors[area.type].accent);
+            board.material.emissiveIntensity = t;
+          }
+        }
+
+        function updateKissReaction(elapsed) {
+          if (mainState.modalOpen) return;
+          const player = mainState.player.group.position;
+          const female = mainState.female.group.position;
+          const dist = distance2D(player, female);
+          const now = performance.now();
+          if (dist < 1.25 && now > mainState.kissCooldownUntil) {
+            mainState.kissCooldownUntil = now + 3600;
+            const midX = (player.x + female.x) / 2;
+            const midZ = (player.z + female.z) / 2;
+            showBubble(kissBubble, "Mwah!", { x: midX, z: midZ }, 2.85, 1100, "kiss");
+            spawnKissBurst(midX, 2.25, midZ);
+            spawnKissHearts(midX, 2.38, midZ);
+          }
+        }
+
+        function distance2D(a, b) {
+          return Math.hypot(a.x - b.x, a.z - b.z);
+        }
+
+        function animate() {
+          const now = performance.now();
+          const dt = Math.min(0.033, (now - mainState.lastTime) / 1000 || 0.016);
+          mainState.lastTime = now;
+          const elapsed = mainState.clock.getElapsedTime();
+
+          try {
+            updateCharacters(dt, elapsed);
+            updateParticles(dt);
+            if (mainState.renderer && mainState.scene && mainState.camera) {
+              mainState.renderer.render(mainState.scene, mainState.camera);
+            }
+          } catch (error) {
+            console.error(error);
+            showFallback(error);
+            return;
+          }
+
+          requestAnimationFrame(animate);
+        }
+
+        function clamp(value, min, max) {
+          return Math.min(max, Math.max(min, value));
+        }
+
+        function lerp(a, b, t) {
+          return a + (b - a) * t;
+        }
+
+        boot();
+      })();
+    </script>
+  </body>
+</html>
