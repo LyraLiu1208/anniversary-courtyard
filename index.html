@@ -885,7 +885,7 @@
 
       const musicConfig = {
         src: "audio/moonlight.mp3",
-        volume: 0.35,
+        volume: 0.8,
         loop: true,
       };
 
@@ -2898,13 +2898,16 @@
           audio.src = musicConfig.src;
           audio.loop = musicConfig.loop !== false;
           audio.volume = typeof musicConfig.volume === "number" ? musicConfig.volume : 0.35;
-          audio.preload = "none";
+          audio.preload = "auto";
+          audio.setAttribute("playsinline", "");
+          audio.style.display = "none";
           audio.addEventListener("error", () => {
             audio.pause();
             mainState.musicPlaying = false;
             stopMusicWatchdog();
             updateMusicButton();
           });
+          document.body.appendChild(audio);
           mainState.audio = audio;
           updateMusicButton();
         }
